@@ -1,8 +1,11 @@
 import React from 'react'
+import LandingPage from './pages/landingpage'
 
 const App = () => {
-  return (
-    <div>REACT + TAILWIND + SHADCN + ELEGANT LUXURY(from tweakcn) INSTALLED </div>
+  return (<>
+ 
+  <LandingPage/>
+  </>
   )
 }
 

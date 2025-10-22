@@ -187,4 +187,9 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
+
+  /* Enable smooth scrolling for anchor navigation */
+  html {
+    scroll-behavior: smooth;
+  }
 }
