@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
+import sendMail from "../config/sendMail.js";
 
 export const userRegistration = async (req, res) => {
       try {
@@ -27,8 +28,34 @@ export const userRegistration = async (req, res) => {
                   resetPasswordExpires
             });
 
-            await newUser.save();
 
+            await newUser.save();
+            try {
+                  await sendMail({
+                        to: email,
+                        subject: `Welcome to Parakh.AI, ${name}! 🎉`,
+                        text: `Welcome to Parakh.AI — India’s best AI-powered interview practice app!
+We’re excited to have you on board.
+Get ready to sharpen your skills, practice real-world interview questions, and boost your confidence — all in one place.
+
+Let’s begin your journey toward landing your dream job!
+
+Warm regards,
+The Parakh.AI Team`,
+                        html: `
+                  <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                  <h2>Welcome to <span style="color:#4F46E5;">Parakh.AI</span>, ${name}! 🎉</h2>
+                  <p>India’s best <b>AI-powered interview practice app</b> is excited to have you on board!</p>
+                  <p>Sharpen your skills, practice real-world interview questions, and boost your confidence — all in one place.</p>
+                  <p>Let’s begin your journey toward landing your dream job! 🚀</p>
+                  <br>
+                  <p>Warm regards,<br><b>The Parakh.AI Team</b></p>
+                  </div>
+            `,
+                  });
+            } catch (mailErr) {
+                  console.error('Error sending welcome email:', mailErr?.message || mailErr);
+            }
             return res.status(201).json({
                   message: "User registered successfully",
                   newUser
@@ -70,7 +97,7 @@ export const userLogin = async(req, res) =>{
                   httpOnly: true,
                   secure: process.env.NODE_ENV === 'production',
                   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                  maxAge: 60 * 60 * 1000, // 1 hour
+                  maxAge: 60 * 60 * 1000, 
             };
 
             res.cookie('token', token, cookieOptions).status(200).json({
@@ -111,7 +138,6 @@ export const userLogout = async(req, res)=>{
 
 export const getProfile = async (req, res) => {
       try {
-            // protect middleware sets req.user with decoded token
             const userId = req.user?.userId;
             if (!userId) {
                   return res.status(400).json({ message: 'User id not found in token' });

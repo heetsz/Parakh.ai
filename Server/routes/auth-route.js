@@ -7,8 +7,6 @@ const authRouter = express.Router();
 authRouter.post('/register', userRegistration);
 authRouter.post('/login', userLogin);
 authRouter.post('/logout', protect, userLogout);
-
-// Protected route to get profile (email) from token
 authRouter.get('/me', protect, getProfile);
 
 export default authRouter;
