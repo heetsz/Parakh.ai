@@ -17,8 +17,8 @@ app.use(cookieParser());
 
 app.use('/api', authRouter); 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ;
 app.listen(PORT, async () => {
-      console.log(`Server running on http://localhost:${PORT}/api/`);
+      console.log(`Server running`);
       await db();
 });

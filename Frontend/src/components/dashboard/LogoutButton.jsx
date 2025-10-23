@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function LogoutButton() {
       const [loading, setLoading] = useState(false);
       const navigate = useNavigate();
-      const base_url = import.meta.env.VITE_BACKEND_URL; 
+      const base_url = import.meta.env.VITE_BACKEND_URL;
 
       const handleLogout = async () => {
             setLoading(true);
@@ -36,12 +37,11 @@ export default function LogoutButton() {
       };
 
       return (
-            <button
+            <Button
                   onClick={handleLogout}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                   disabled={loading}
             >
                   {loading ? "Logging out..." : "Logout"}
-            </button>
+            </Button>
       );
 }
