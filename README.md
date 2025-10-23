@@ -8,3 +8,5 @@ add images,
 hover effects, 
 animations
 
+2.) reset password, email verification
+
