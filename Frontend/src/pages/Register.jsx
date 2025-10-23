@@ -30,7 +30,7 @@ export default function RegisterPage() {
 
                   if (res.status === 201) {
                         setMessage(`Welcome, ${res.data.newUser.name}! Registration successful.`);
-                        navigate("/login")
+                        navigate("/login");
                   }
             } catch (err) {
                   console.log(err.response); 
@@ -93,6 +93,17 @@ export default function RegisterPage() {
                                     </Button>
 
                                     {message && <p className="text-center text-sm mt-2 text-red-500">{message}</p>}
+
+                                    <p className="text-center text-sm mt-2">
+                                          Already have an account?
+                                          <button
+                                                type="button"
+                                                onClick={() => navigate("/login")}
+                                                className="ml-2 text-blue-600 hover:underline"
+                                          >
+                                                Login
+                                          </button>
+                                    </p>
                               </form>
                         </CardContent>
                   </Card>

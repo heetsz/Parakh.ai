@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -77,6 +77,13 @@ export default function LoginPage() {
                                     <Button type="submit" className="w-full" disabled={loading}>
                                           {loading ? "Logging in..." : "Login"}
                                     </Button>
+
+                                    <div className="text-center text-sm mt-2">
+                                          Don't have an account?{" "}
+                                          <Link to="/register" className="text-blue-600 hover:underline">
+                                                Register
+                                          </Link>
+                                    </div>
 
                                     {message && <p className="text-center text-sm mt-2 text-red-500">{message}</p>}
                               </form>
