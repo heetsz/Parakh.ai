@@ -15,6 +15,8 @@ useEffect(() => {
   const checkToken = async () => {
     try {
       const res = await axios.get(`${base_url}/me`, { withCredentials: true });
+      const email = res.data?.email;
+      if (email) localStorage.setItem('email', email);
       setTokenValid(res.status === 200);
     } catch {
       setTokenValid(false);

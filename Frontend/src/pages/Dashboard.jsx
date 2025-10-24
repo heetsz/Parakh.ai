@@ -5,25 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function Dashboard() {
-  const [email, setEmail] = useState("");
   const [activeTab, setActiveTab] = useState("interviews");
   const base_url = import.meta.env.VITE_BACKEND_URL;
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(`${base_url}/me`, {
-          withCredentials: true,
-        });
-        setEmail(res.data.email);
-      } catch (err) {
-        console.error("Failed to fetch user:", err.response?.data || err.message);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
+  const email = localStorage.getItem("email");
+  
   return (
     <div className="h-screen flex flex-col">
       <Navbar email={email} />
