@@ -30,7 +30,7 @@ export default function LoginPage() {
                   );
 
                   // Server returns token in body as well; keep it for Authorization header fallback
-                  if (res.data.token) localStorage.setItem("token", res.data.token);
+                  // if (res.data.token) localStorage.setItem("token", res.data.token);
 
                   setMessage(res.data.message);
                   // navigate("/dashboard"); // redirect to dashboard
