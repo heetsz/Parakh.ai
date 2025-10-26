@@ -35,7 +35,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={tokenValid ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={tokenValid ? <Navigate to="/dashboard" replace /> : <Login />} />
         <Route path="/register" element={tokenValid ? <Navigate to="/dashboard" replace /> : <Register />} />
 
