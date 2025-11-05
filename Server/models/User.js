@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose"
-const hrSchema = new Schema({
+const userSchema = new Schema({
       name: {
             type: String,
       },
@@ -23,5 +23,5 @@ const hrSchema = new Schema({
             type: Date,
       },
 })
-const hr = model('HR', hrSchema)
-export default hr;
+const User = model('User', userSchema)
+export default User;
