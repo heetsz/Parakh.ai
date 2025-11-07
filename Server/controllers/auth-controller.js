@@ -5,12 +5,19 @@ import sendMail from "../config/sendMail.js";
 
 export const registration = async (req, res) => {
       try {
-            const { name, email, password } = req.body;
+            let { name, email, password, username } = req.body;
+            // Basic validation
+            if (!username || typeof username !== 'string' || !username.trim()) {
+                  return res.status(400).json({ message: 'Username is required' });
+            }
+            // Normalize username to lowercase trimmed form for uniqueness
+            username = username.trim().toLowerCase();
 
-            let existingUser = await User.findOne({ email });
+            // Prevent duplicates by email or username
+            let existingUser = await User.findOne({ $or: [{ email }, { username }] });
             if (existingUser) {
                   return res.status(400).json({
-                        message: "User already registered"
+                        message: "User with that email or username already registered"
                   });
             }
 
@@ -34,6 +41,7 @@ export const registration = async (req, res) => {
             const newUser = new User({
                   name,
                   email,
+                  username,
                   password: hashPassword,
                   isVerified: false,
                   verificationCode,
@@ -77,7 +85,7 @@ export const verifyEmailCode = async (req, res) => {
             foundUser.verificationCodeExpires = undefined;
             await foundUser.save();
 
-            const token = jwt.sign({ userId: foundUser._id, userEmail: foundUser.email }, process.env.ACCESS_TOKEN, {
+            const token = jwt.sign({ userId: foundUser._id, username: foundUser.username }, process.env.ACCESS_TOKEN, {
                   expiresIn: '1h'
             });
             const isProd = process.env.NODE_ENV === 'production';
@@ -101,13 +109,17 @@ export const verifyEmailCode = async (req, res) => {
 
 export const login = async (req, res) => {
       try {
-            const { email, password } = req.body;
-            const foundUser = await User.findOne({ email });
+            let { username, password } = req.body;
+            if (!username || typeof username !== 'string') {
+                  return res.status(400).json({ message: 'Username is required' });
+            }
+            username = username.trim().toLowerCase();
+            const foundUser = await User.findOne({ username });
 
             if (!foundUser) {
                   return res.status(400).json({
-                        message: "Invalid email",
-                        email: email,
+                        message: "Invalid username",
+                        username: username,
                   });
             }
             if (!foundUser.isVerified) {
@@ -123,7 +135,7 @@ export const login = async (req, res) => {
                   });
             }
 
-            const token = jwt.sign({ userId: foundUser?._id, userEmail: foundUser?.email }, process.env.ACCESS_TOKEN, {
+            const token = jwt.sign({ userId: foundUser?._id, username: foundUser?.username }, process.env.ACCESS_TOKEN, {
                   expiresIn: '1h'
             })
 
@@ -171,12 +183,12 @@ export const logout = async (req, res) => {
 export const getProfile = async (req, res) => {
       try {
             const userId = req.user?.userId;
-            const email = req.user?.userEmail;
             if (!userId) {
                   return res.status(400).json({ message: 'User id not found in token' });
             }
 
-            const foundUser = await User.findOne({ email })
+            // Lookup by id (safer than relying on email in token)
+            const foundUser = await User.findById(userId);
             if (!foundUser) {
                   return res.status(404).json({ message: 'User not found' });
             }

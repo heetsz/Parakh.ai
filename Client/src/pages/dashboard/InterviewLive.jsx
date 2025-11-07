@@ -1,13 +1,8 @@
-
-https://parakh-ai.onrender.com
-https://parakh-ai-node.onrender.com/api
-https://parakh-ai-fastapi.onrender.com
-
-node_env = production
-
 import { useEffect, useRef, useState, useMemo } from "react";
 
-export default function InterviewAgent() {
+export default function InterviewLive() {
+  const [interview, setInterview] = useState(null);
+  const [loadingInterview, setLoadingInterview] = useState(true);
   const [messages, setMessages] = useState([]); // {from: 'you'|'bot', text, ts}
   const [socket, setSocket] = useState(null);
   const [recording, setRecording] = useState(false);
@@ -57,6 +52,32 @@ export default function InterviewAgent() {
     };
 
     return () => ws.close();
+  }, []);
+
+  // Fetch interview metadata by id from backend and show title
+  useEffect(() => {
+    const pathParts = window.location.pathname.split('/');
+    // expected: /dashboard/interviews/live/:id
+    const id = pathParts[pathParts.length - 1];
+    if (!id) {
+      setLoadingInterview(false);
+      return;
+    }
+
+    const fetchMeta = async () => {
+      setLoadingInterview(true);
+      try {
+        const base = import.meta.env.VITE_BACKEND_URL;
+        const axios = (await import('axios')).default;
+        const res = await axios.get(`${base}/interviews/${id}`, { withCredentials: true });
+        setInterview(res.data);
+      } catch (e) {
+        console.warn('Failed to fetch interview meta', e?.response?.data || e);
+      } finally {
+        setLoadingInterview(false);
+      }
+    };
+    fetchMeta();
   }, []);
 
   // Auto-scroll transcript as new messages arrive
@@ -144,7 +165,7 @@ export default function InterviewAgent() {
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-xl font-semibold">AI Interviewer</h2>
+      <h2 className="text-xl font-semibold">{loadingInterview ? 'AI Interviewer' : (interview?.title || 'AI Interviewer')}</h2>
 
       {/* Meet-style circles */}
       <div className="flex items-start gap-6">

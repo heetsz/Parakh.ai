@@ -6,6 +6,8 @@ import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import Interviews from './pages/dashboard/Interviews';
+import CreateInterview from './pages/dashboard/CreateInterview';
+import InterviewLive from './pages/dashboard/InterviewLive';
 import Progress from './pages/dashboard/Progress';
 import Community from './pages/dashboard/Community';
 import Gamification from './pages/dashboard/Gamification';
@@ -24,8 +26,8 @@ const App = () => {
     const checkToken = async () => {
       try {
         const res = await axios.get(`${base_url}/me`, { withCredentials: true });
-        const email = res.data?.email;
-        if (email) localStorage.setItem('email', email);
+        const username = res.data?.username;
+        if (username) localStorage.setItem('username', username);
         setToken(res.status === 200);
       } catch {
         setToken(false);
@@ -63,6 +65,8 @@ const App = () => {
           {/* Default to Interviews when opening dashboard */}
           <Route index element={<Navigate to="interviews" replace />} />
           <Route path="interviews" element={<Interviews />} />
+          <Route path="interviews/create" element={<CreateInterview />} />
+          <Route path="interviews/live/:id" element={<InterviewLive />} />
           <Route path="progress" element={<Progress />} />
           <Route path="community" element={<Community />} />
           <Route path="gamification" element={<Gamification />} />

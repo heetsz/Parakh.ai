@@ -10,7 +10,7 @@ import { useNotification } from "@/components/ui/notification";
 export default function LoginPage() {
       const base_url = import.meta.env.VITE_BACKEND_URL;
 
-      const [email, setEmail] = useState("");
+      const [username, setUsername] = useState("");
       const [password, setPassword] = useState("");
       const [loading, setLoading] = useState(false);
       const { error } = useNotification();
@@ -22,7 +22,7 @@ export default function LoginPage() {
             try {
                   await axios.post(
                         `${base_url}/login`,
-                        { email, password },
+                        { username, password },
                         { withCredentials: true }
                   );
                   // Removed success notification and timeout; reload immediately to refresh auth state if needed.
@@ -40,18 +40,18 @@ export default function LoginPage() {
                         <CardHeader className="space-y-1">
                               <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
                               <CardDescription className="text-center">
-                                    Enter your email and password to login
+                                    Enter your username and password to login
                               </CardDescription>
                         </CardHeader>
                         <CardContent>
                               <form className="space-y-4" onSubmit={handleLogin}>
                                     <div className="space-y-2">
-                                          <Label htmlFor="email">Email</Label>
+                                          <Label htmlFor="username">Username</Label>
                                           <Input
-                                                id="email"
-                                                type="email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
+                                                id="username"
+                                                type="text"
+                                                value={username}
+                                                onChange={(e) => setUsername(e.target.value)}
                                                 required
                                           />
                                     </div>

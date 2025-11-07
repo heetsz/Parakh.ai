@@ -12,6 +12,7 @@ export default function RegisterPage() {
       const base_url = import.meta.env.VITE_BACKEND_URL;
 
       const [name, setName] = useState("");
+      const [username, setUsername] = useState("");
       const [email, setEmail] = useState("");
       const [password, setPassword] = useState("");
       const [loading, setLoading] = useState(false);
@@ -23,12 +24,16 @@ export default function RegisterPage() {
             
 
             try {
-                  const res = await axios.post(`${base_url}/register`, {
-                        name,
-                        email,
-                        password,
-                  }, { withCredentials: true }
-);
+                  const res = await axios.post(
+                        `${base_url}/register`,
+                        {
+                              name,
+                              username,
+                              email,
+                              password,
+                        },
+                        { withCredentials: true }
+                  );
 
                   if (res.status === 200) {
                         // Removed success notification and timeout; navigate immediately.
@@ -53,6 +58,7 @@ export default function RegisterPage() {
                         </CardHeader>
                         <CardContent>
                               <form className="space-y-4" onSubmit={handleRegister}>
+
                                     <div className="space-y-2">
                                           <Label htmlFor="name">Name</Label>
                                           <Input
@@ -60,6 +66,17 @@ export default function RegisterPage() {
                                                 type="text"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
+                                                required
+                                          />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                          <Label htmlFor="username">Username</Label>
+                                          <Input
+                                                id="username"
+                                                type="text"
+                                                value={username}
+                                                onChange={(e) => setUsername(e.target.value)}
                                                 required
                                           />
                                     </div>

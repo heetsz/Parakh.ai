@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from .routes.ws import router as ws_router
+from .routes.interviews import router as interviews_router
 
 load_dotenv()
 
@@ -23,3 +24,4 @@ app.add_middleware(
 )
 
 app.include_router(ws_router)
+app.include_router(interviews_router)

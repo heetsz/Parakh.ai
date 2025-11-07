@@ -6,6 +6,7 @@ import db from "./config/db.js";
 import authRouter from "./routes/auth-route.js";
 import mailRouter from "./routes/mail-route.js";
 import gamificationRoutes from "./routes/gamification-route.js";
+import interviewRoutes from "./routes/interview-route.js";
 
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use(cookieParser());
 app.use('/api', authRouter);
 app.use('/api', mailRouter);
 app.use('/api/gamification', gamificationRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {

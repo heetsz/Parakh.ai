@@ -3,6 +3,11 @@ const userSchema = new Schema({
       name: {
             type: String,
       },
+      username: {
+            type: String,
+            unique: true,
+            required: true,
+      },
       email: {
             type: String,
             unique: true,
@@ -23,5 +28,7 @@ const userSchema = new Schema({
             type: Date,
       },
 })
+// Ensure an index on username for uniqueness at the database level
+userSchema.index({ username: 1 }, { unique: true });
 const User = model('User', userSchema)
 export default User;
