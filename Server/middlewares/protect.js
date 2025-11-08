@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken"
+import User from "../models/User.js"
 
 export const protect = async (req, res, next) => {
       try {
@@ -19,9 +20,19 @@ export const protect = async (req, res, next) => {
             }
 
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
-            req.user = decoded;
+            
+            // Find the full user object using userId from token
+            const user = await User.findById(decoded.userId);
+            if (user) {
+                  req.user = user;
+            } else {
+                  // Fallback to decoded token if user not found in DB
+                  req.user = { _id: decoded.userId, username: decoded.username };
+            }
+            
             next();
       } catch (error) {
+            console.error("Auth error:", error);
             res.status(401).json({ message: 'Access Denied, Invalid Token' });
       }
 };
