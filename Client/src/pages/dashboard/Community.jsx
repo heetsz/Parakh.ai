@@ -1,22 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
 import { Textarea } from "../../components/ui/textarea";
 import { Input } from "../../components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../../components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog";
 import { Badge } from "../../components/ui/badge";
 import { Separator } from "../../components/ui/separator";
-import { Heart, MessageCircle, Send, Plus, Image, Link, FileText, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Send, Plus, Image, Link, FileText, Trash2, Upload } from "lucide-react";
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_PRESET_NAME;
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // New post state
   const [newPost, setNewPost] = useState({
@@ -26,6 +28,11 @@ export default function Community() {
   
   // Comment state
   const [commentInputs, setCommentInputs] = useState({});
+  const [showComments, setShowComments] = useState({});
+  
+  // File upload
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef(null);
   
   useEffect(() => {
     fetchPosts();
@@ -36,7 +43,11 @@ export default function Community() {
       const response = await axios.get(`${API_URL}/community/posts`, {
         withCredentials: true
       });
-      setPosts(response.data.posts);
+      // Sort posts by number of likes (descending)
+      const sortedPosts = response.data.posts.sort((a, b) => {
+        return (b.likes?.length || 0) - (a.likes?.length || 0);
+      });
+      setPosts(sortedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -57,7 +68,7 @@ export default function Community() {
       
       setPosts([response.data.post, ...posts]);
       setNewPost({ content: "", attachments: [] });
-      setIsSheetOpen(false); // Close the sheet after posting
+      setIsDialogOpen(false); // Close the dialog after posting
     } catch (error) {
       console.error("Error creating post:", error);
       alert("Failed to create post: " + (error.response?.data?.message || error.message));
@@ -123,12 +134,88 @@ export default function Community() {
     }
   };
   
-  const addAttachment = (type) => {
-    const url = prompt(`Enter ${type} URL:`);
+  const uploadToCloudinary = async (file, resourceType = 'auto') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    
+    try {
+      console.log('Uploading to Cloudinary...', {
+        cloudName: CLOUDINARY_CLOUD_NAME,
+        preset: CLOUDINARY_UPLOAD_PRESET,
+        resourceType,
+        fileName: file.name,
+        url: `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`
+      });
+      
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+        formData
+      );
+      
+      console.log('Upload successful:', response.data);
+      return response.data.secure_url;
+    } catch (error) {
+      console.error('Cloudinary upload error:', error);
+      console.error('Error response:', error.response);
+      console.error('Error message:', error.response?.data?.error?.message);
+      
+      // Show specific error message
+      const errorMsg = error.response?.data?.error?.message || 'Unknown error';
+      alert(`Upload failed: ${errorMsg}`);
+      throw error;
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size should be less than 10MB');
+      return;
+    }
+    
+    setUploading(true);
+    try {
+      const url = await uploadToCloudinary(file, 'image');
+      setNewPost({
+        ...newPost,
+        attachments: [...newPost.attachments, { 
+          type: 'image', 
+          url, 
+          name: file.name 
+        }]
+      });
+      alert('Image uploaded successfully!');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload image. Please check console for details.');
+    } finally {
+      setUploading(false);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = '';
+      }
+    }
+  };
+
+  const addLinkAttachment = () => {
+    const url = prompt('Enter link URL:');
     if (url) {
       setNewPost({
         ...newPost,
-        attachments: [...newPost.attachments, { type, url, name: url.split('/').pop() }]
+        attachments: [...newPost.attachments, { 
+          type: 'link', 
+          url, 
+          name: url.split('/').pop() || 'Link'
+        }]
       });
     }
   };
@@ -149,7 +236,7 @@ export default function Community() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Community</h1>
@@ -158,9 +245,9 @@ export default function Community() {
       </div>
 
       {/* Posts Feed */}
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {posts.map((post) => (
-          <Card key={post._id}>
+          <Card key={post._id} className="w-full">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
@@ -218,15 +305,32 @@ export default function Community() {
                         </a>
                       )}
                       {attachment.type === 'document' && (
-                        <a
-                          href={attachment.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-blue-500 hover:underline"
-                        >
-                          <FileText className="h-4 w-4" />
-                          {attachment.name || 'Document'}
-                        </a>
+                        <div className="border rounded-lg p-3 bg-muted/50">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-5 w-5 text-primary" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium">{attachment.name || 'Document'}</p>
+                                <p className="text-xs text-muted-foreground">PDF Document</p>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <a
+                                href={attachment.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                              >
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                >
+                                  Download PDF
+                                </Button>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -236,7 +340,7 @@ export default function Community() {
             
             <Separator />
             
-            <CardFooter className="flex-col gap-3 pt-4">
+            <CardFooter className="flex-col gap-3 py-0">
               {/* Actions */}
               <div className="flex items-center gap-4 w-full">
                 <Button
@@ -248,14 +352,19 @@ export default function Community() {
                   <Heart className={`h-4 w-4 ${post.likes?.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
                   {post.likes?.length || 0}
                 </Button>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })}
+                >
                   <MessageCircle className="h-4 w-4" />
                   {post.comments?.length || 0}
                 </Button>
               </div>
               
               {/* Comments */}
-              {post.comments?.length > 0 && (
+              {showComments[post._id] && post.comments?.length > 0 && (
                 <div className="w-full space-y-3">
                   {post.comments.map((comment) => (
                     <div key={comment._id} className="flex gap-3 text-sm">
@@ -274,48 +383,50 @@ export default function Community() {
               )}
               
               {/* Add Comment */}
-              <div className="flex gap-2 w-full">
-                <Input
-                  placeholder="Add a comment..."
-                  value={commentInputs[post._id] || ""}
-                  onChange={(e) => setCommentInputs({
-                    ...commentInputs,
-                    [post._id]: e.target.value
-                  })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleComment(post._id);
-                    }
-                  }}
-                />
-                <Button
-                  size="icon"
-                  onClick={() => handleComment(post._id)}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
+              {showComments[post._id] && (
+                <div className="flex gap-2 w-full">
+                  <Input
+                    placeholder="Add a comment..."
+                    value={commentInputs[post._id] || ""}
+                    onChange={(e) => setCommentInputs({
+                      ...commentInputs,
+                      [post._id]: e.target.value
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleComment(post._id);
+                      }
+                    }}
+                  />
+                  <Button
+                    size="icon"
+                    onClick={() => handleComment(post._id)}
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </CardFooter>
           </Card>
         ))}
       </div>
 
       {/* Floating Create Post Button */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetTrigger asChild>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
           <Button
             size="lg"
-            className="fixed bottom-8 right-8 rounded-full shadow-lg h-14 w-14"
+            className="fixed bottom-8 right-8 rounded-full shadow-lg h-14 w-14 z-50"
           >
             <Plus className="h-6 w-6" />
           </Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" className="h-[80vh]">
-          <SheetHeader>
-            <SheetTitle>Create Post</SheetTitle>
-            <SheetDescription>Share your thoughts with the community</SheetDescription>
-          </SheetHeader>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create Post</DialogTitle>
+            <DialogDescription>Share your thoughts with the community</DialogDescription>
+          </DialogHeader>
           
           <div className="mt-6 space-y-4">
             <Textarea
@@ -341,35 +452,40 @@ export default function Community() {
             )}
             
             {/* Attachment Buttons */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => addAttachment('image')}
+                onClick={() => imageInputRef.current?.click()}
+                disabled={uploading}
               >
                 <Image className="h-4 w-4 mr-2" />
-                Image
+                {uploading ? 'Uploading...' : 'Upload Image'}
               </Button>
+              
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => addAttachment('link')}
+                onClick={addLinkAttachment}
+                disabled={uploading}
               >
                 <Link className="h-4 w-4 mr-2" />
-                Link
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => addAttachment('document')}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Document
+                Add Link
               </Button>
             </div>
+            
+            <p className="text-xs text-muted-foreground">
+              Upload images directly or add links to external files (PDFs, documents, etc.)
+            </p>
             
             <Button
               onClick={handleCreatePost}
@@ -379,8 +495,8 @@ export default function Community() {
               {isCreating ? "Posting..." : "Post"}
             </Button>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

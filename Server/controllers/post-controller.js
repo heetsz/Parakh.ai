@@ -6,8 +6,6 @@ export const createPost = async (req, res) => {
     const { content, attachments } = req.body;
     const userId = req.user._id;
 
-    console.log("Creating post:", { userId, content, attachments });
-
     if (!content || !content.trim()) {
       return res.status(400).json({
         success: false,
@@ -24,15 +22,12 @@ export const createPost = async (req, res) => {
     await post.save();
     await post.populate('author', 'name email username');
 
-    console.log("Post created successfully:", post._id);
-
     res.status(201).json({
       success: true,
       message: "Post created successfully",
       post
     });
   } catch (error) {
-    console.error("Error creating post:", error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -55,8 +50,6 @@ export const getAllPosts = async (req, res) => {
 
     const total = await Post.countDocuments();
 
-    console.log(`Fetched ${posts.length} posts`);
-
     res.status(200).json({
       success: true,
       posts,
@@ -68,7 +61,6 @@ export const getAllPosts = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error fetching posts:", error);
     res.status(500).json({
       success: false,
       message: error.message
