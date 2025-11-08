@@ -182,12 +182,18 @@ export const logout = async (req, res) => {
 
 export const getProfile = async (req, res) => {
       try {
-            const userId = req.user?.userId;
+            // req.user is now the full user object from protect middleware
+            const userId = req.user?._id || req.user?.userId;
             if (!userId) {
                   return res.status(400).json({ message: 'User id not found in token' });
             }
 
-            // Lookup by id (safer than relying on email in token)
+            // If req.user is already the full user object, return it
+            if (req.user?.email && req.user?.username) {
+                  return res.status(200).json(req.user);
+            }
+
+            // Otherwise, lookup by id
             const foundUser = await User.findById(userId);
             if (!foundUser) {
                   return res.status(404).json({ message: 'User not found' });
