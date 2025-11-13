@@ -1,5 +1,5 @@
 import express from "express";
-import { createInterview, listInterviews, getInterview } from "../controllers/interview-controller.js";
+import { createInterview, listInterviews, getInterview, deleteInterview } from "../controllers/interview-controller.js";
 import { protect } from "../middlewares/protect.js";
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.post("/", protect, createInterview);
 
 // GET /:id -> get interview by id (owner only)
 router.get("/:id", protect, getInterview);
+
+// DELETE /:id -> delete interview by id (owner only)
+router.delete("/:id", protect, deleteInterview);
 
 export default router;

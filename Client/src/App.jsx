@@ -6,7 +6,6 @@ import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
 import Interviews from './pages/dashboard/Interviews';
-import CreateInterview from './pages/dashboard/CreateInterview';
 import InterviewLive from './pages/dashboard/InterviewLive';
 import Progress from './pages/dashboard/Progress';
 import Community from './pages/dashboard/Community';

@@ -3,8 +3,9 @@ import User from "../models/User.js";
 
 export const createInterview = async (req, res) => {
   try {
-    const userId = req.user?.userId;
-    const username = req.user?.username;
+    const userId = req.user?._id;
+    const foundUser = await User.findById(userId);
+    const username = foundUser.username
     if (!userId || !username) return res.status(401).json({ message: "Unauthorized" });
 
     const {
@@ -31,11 +32,13 @@ export const createInterview = async (req, res) => {
     });
 
     await newInterview.save();
-    // Trigger FastAPI to prepare an interview generation job here, if configured
+    
+    // Trigger FastAPI to generate interview questions
     const fastapiUrl = process.env.FASTAPI_URL || process.env.AI_HTTP || "http://localhost:8000";
     try {
-      // Fire-and-forget: attempt to generate a plan and store it in the interview.result
       const axios = await import('axios').then(m => m.default);
+      console.log(`Calling FastAPI at ${fastapiUrl}/interviews/generate`);
+      
       const genResp = await axios.post(`${fastapiUrl}/interviews/generate`, {
         title: newInterview.title,
         role: newInterview.role,
@@ -44,6 +47,8 @@ export const createInterview = async (req, res) => {
         difficulty: newInterview.difficulty,
         resume: newInterview.resume,
         notes: newInterview.notes,
+      }, {
+        timeout: 30000 // 30 second timeout
       });
 
       if (genResp?.data?.ok && genResp.data.generated) {
@@ -51,9 +56,14 @@ export const createInterview = async (req, res) => {
         newInterview.status = 'ready';
         newInterview.updatedAt = new Date();
         await newInterview.save();
+        console.log('Interview questions generated successfully');
+      } else {
+        console.warn('FastAPI did not return expected data:', genResp?.data);
       }
     } catch (e) {
-      console.warn('FastAPI generate failed:', e?.message || e);
+      console.error('FastAPI generate failed:', e?.message || e);
+      // Interview is still saved, but without generated questions
+      // Status remains 'pending'
     }
 
     return res.status(201).json(newInterview);
@@ -93,6 +103,33 @@ export const getInterview = async (req, res) => {
     return res.status(200).json(iv);
   } catch (err) {
     console.error("getInterview error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const deleteInterview = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const username = req.user?.username;
+    if (!userId || !username) return res.status(401).json({ message: "Unauthorized" });
+
+    const { id } = req.params;
+    const interview = await Interview.findById(id);
+    
+    if (!interview) {
+      return res.status(404).json({ message: "Interview not found" });
+    }
+
+    // Check if user owns this interview
+    if (interview.user.toString() !== userId.toString() && interview.username !== username) {
+      return res.status(403).json({ message: "Forbidden: You can only delete your own interviews" });
+    }
+
+    await Interview.findByIdAndDelete(id);
+    
+    return res.status(200).json({ message: "Interview deleted successfully" });
+  } catch (err) {
+    console.error("deleteInterview error:", err);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };

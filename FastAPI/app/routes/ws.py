@@ -22,6 +22,7 @@ async def interview_socket(websocket: WebSocket):
 
     audio_buffer = bytearray()
     history: List[Dict[str, Any]] = []  # [{role: user|assistant, content: str}]
+    interview_context: Dict[str, Any] = {}  # Store interview details
     groq_client = get_groq_client()
 
     try:
@@ -42,6 +43,43 @@ async def interview_socket(websocket: WebSocket):
                 except Exception:
                     msg_type = txt.strip().lower()
 
+                if msg_type == "interview_context":
+                    # Store interview context for AI to use
+                    interview_context = obj.get("data", {})
+                    print(f"📋 Interview context received: {interview_context}")
+                    
+                    # Send initial greeting based on interview context
+                    role = interview_context.get("role", "candidate")
+                    greeting = f"Hello! I'll be conducting your {role} interview today. Let's begin. Tell me about yourself and your experience."
+                    
+                    history.append({"role": "assistant", "content": greeting})
+                    
+                    await websocket.send_text(json.dumps({
+                        "type": "assistant_text",
+                        "transcript": "",
+                        "text": greeting,
+                    }))
+                    
+                    # Generate TTS for greeting
+                    try:
+                        audio_bytes, mime = await synthesize_tts(
+                            groq_client,
+                            greeting,
+                            model=os.getenv("GROQ_TTS_MODEL", DEFAULT_TTS_MODEL),
+                            voice=os.getenv("GROQ_TTS_VOICE", DEFAULT_TTS_VOICE),
+                            response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
+                        )
+                        await websocket.send_text(json.dumps({
+                            "type": "assistant_audio",
+                            "audio_format": mime,
+                        }))
+                        if audio_bytes:
+                            await websocket.send_bytes(audio_bytes)
+                    except Exception as e:
+                        print("[Groq TTS] error:", e)
+                    
+                    continue
+
                 if msg_type in ("segment_end", "flush"):
                     # 1) STT
                     transcript = ""
@@ -52,8 +90,8 @@ async def interview_socket(websocket: WebSocket):
 
                     history.append({"role": "user", "content": transcript})
 
-                    # 2) LLM reply (non-streaming for now)
-                    reply_text = await generate_reply(groq_client, history, GROQ_LLM_MODEL)
+                    # 2) LLM reply (non-streaming for now) - pass interview context
+                    reply_text = await generate_reply(groq_client, history, GROQ_LLM_MODEL, interview_context)
                     history.append({"role": "assistant", "content": reply_text})
 
                     # Send assistant text first so UI can show live transcript under interviewer circle
