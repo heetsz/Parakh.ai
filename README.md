@@ -25,6 +25,7 @@ CLOUDINARY_CLOUD_NAME="dgnic7whi"
 CLOUDINARY_API_KEY="325273461197941"
 CLOUDINARY_API_SECRET="L3um97aFDBnFn3nacHKLSBSAN0w"
 FASTAPI_URL="http://localhost:8000"
+GEMINI_API_KEY="AIzaSyAOQeteQeQd3KlxDaOdhhbNuyMGIIyG0OA"
 
 client:-
 
@@ -38,4 +39,11 @@ VITE_PRESET_NAME="parakh.ai"
 
 edit with tanish's secret key
 
+to run fastapi
+
+pip install -r requirements.txt
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+
+for client and server 
+npm i && npm run dev
