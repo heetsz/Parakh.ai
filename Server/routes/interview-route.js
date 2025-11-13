@@ -1,5 +1,5 @@
 import express from "express";
-import { createInterview, listInterviews, getInterview, deleteInterview, saveConversationTurn, completeInterview, uploadAudioFile, upload } from "../controllers/interview-controller.js";
+import { createInterview, listInterviews, getInterview, deleteInterview, saveConversationTurn, completeInterview, uploadAudioFile, upload, getProgressAnalytics } from "../controllers/interview-controller.js";
 import { protect } from "../middlewares/protect.js";
 import { v2 as cloudinary } from 'cloudinary';
 
@@ -19,6 +19,9 @@ router.get("/test-cloudinary", protect, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// GET /progress -> get progress analytics for current user
+router.get("/progress", protect, getProgressAnalytics);
 
 // GET / -> list interviews for current user
 router.get("/", protect, listInterviews);

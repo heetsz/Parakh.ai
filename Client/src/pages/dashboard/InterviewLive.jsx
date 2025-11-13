@@ -315,9 +315,10 @@ export default function InterviewLive() {
     try {
       await axios.post(
         `${base_url}/interviews/${id}/complete`,
-        { evaluation },
+        {},
         { withCredentials: true }
       );
+      console.log('✅ Interview marked as complete');
     } catch (error) {
       console.error('Failed to complete interview:', error);
     }
@@ -327,8 +328,8 @@ export default function InterviewLive() {
       streamRef.current.getTracks().forEach(track => track.stop());
     }
     
-    // Navigate back to interviews page
-    navigate("/dashboard/interviews");
+    // Navigate to progress page to see results
+    navigate("/dashboard/progress");
   };
 
   // Initialize media on mount

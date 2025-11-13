@@ -2,6 +2,7 @@ import Interview from "../models/Interview.js";
 import User from "../models/User.js";
 import { uploadAudio } from "../config/cloudinary.js";
 import multer from 'multer';
+import axios from 'axios';
 
 // Configure multer for memory storage
 const storage = multer.memoryStorage();
@@ -20,8 +21,27 @@ export const createInterview = async (req, res) => {
       notes,
     } = req.body;
 
-    // Generate title using simple logic (role + difficulty)
-    const title = `${role} - ${difficulty} Interview`;
+    // Generate title using FastAPI LLM
+    const fastapiUrl = process.env.FASTAPI_URL || process.env.AI_HTTP || "http://localhost:8000";
+    let title = `${role} - ${difficulty} Interview`; // Fallback title
+    
+    try {
+      console.log('🎯 Generating interview title with LLM...');
+      const titleResp = await axios.post(`${fastapiUrl}/interviews/generate-title`, {
+        role,
+        difficulty,
+        notes: notes || ""
+      });
+      
+      if (titleResp.data.ok && titleResp.data.title) {
+        title = titleResp.data.title;
+        console.log(`✅ Generated title: "${title}"`);
+      } else {
+        console.log('⚠️ Using fallback title');
+      }
+    } catch (titleError) {
+      console.error('❌ Title generation failed, using fallback:', titleError.message);
+    }
 
     const newInterview = new Interview({
       title,
@@ -36,9 +56,7 @@ export const createInterview = async (req, res) => {
     await newInterview.save();
     
     // Trigger FastAPI to generate interview questions
-    const fastapiUrl = process.env.FASTAPI_URL || process.env.AI_HTTP || "http://localhost:8000";
     try {
-      const axios = await import('axios').then(m => m.default);
       console.log(`Calling FastAPI at ${fastapiUrl}/interviews/generate`);
       
       const genResp = await axios.post(`${fastapiUrl}/interviews/generate`, {
@@ -201,38 +219,82 @@ export const saveConversationTurn = async (req, res) => {
 
 export const completeInterview = async (req, res) => {
   try {
+    console.log('🏁 Complete interview request received');
+    
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const { id } = req.params;
-    const { evaluation } = req.body;
 
     const interview = await Interview.findById(id);
     if (!interview) {
+      console.log('❌ Interview not found');
       return res.status(404).json({ message: "Interview not found" });
     }
 
     // Check if user owns this interview
     if (interview.user.toString() !== userId.toString()) {
+      console.log('❌ User does not own this interview');
       return res.status(403).json({ message: "Forbidden" });
+    }
+
+    console.log('📊 Calling FastAPI to evaluate interview...');
+    
+    // Call FastAPI to get detailed evaluation
+    const fastApiUrl = process.env.FASTAPI_URL || "http://localhost:8000";
+    
+    // Format conversation for evaluation
+    const conversation = interview.conversation.map(turn => ({
+      role: turn.speaker === 'user' ? 'user' : 'assistant',
+      content: turn.text
+    }));
+    
+    const interviewContext = {
+      role: interview.role,
+      difficulty: interview.difficulty,
+      notes: interview.notes
+    };
+    
+    try {
+      const evalResponse = await axios.post(
+        `${fastApiUrl}/interviews/evaluate`,
+        {
+          conversation,
+          interviewContext
+        }
+      );
+      
+      if (evalResponse.data.ok && evalResponse.data.evaluation) {
+        const evaluation = evalResponse.data.evaluation;
+        
+        console.log('✅ Evaluation received:', evaluation);
+        
+        // Save scores and feedback
+        interview.scores = evaluation.scores;
+        interview.feedback = evaluation.feedback;
+        interview.result = { evaluation: evaluation.feedback.detailedFeedback };
+      } else {
+        console.log('⚠️ Evaluation failed, using default scores');
+      }
+    } catch (evalError) {
+      console.error('❌ FastAPI evaluation error:', evalError.message);
+      // Continue without evaluation rather than failing
     }
 
     interview.status = "completed";
     interview.completedAt = new Date();
     interview.updatedAt = new Date();
-    
-    if (evaluation) {
-      interview.result = { ...interview.result, evaluation };
-    }
 
     await interview.save();
+
+    console.log('✅ Interview completed successfully');
 
     return res.status(200).json({ 
       message: "Interview completed",
       interview 
     });
   } catch (err) {
-    console.error("completeInterview error:", err);
+    console.error("❌ completeInterview error:", err);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -280,6 +342,128 @@ export const uploadAudioFile = async (req, res) => {
     });
   } catch (err) {
     console.error("❌ uploadAudioFile error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const getProgressAnalytics = async (req, res) => {
+  try {
+    console.log('📊 Progress analytics request received');
+    
+    const userId = req.user?._id;
+    const foundUser = await User.findById(userId);
+    const username = foundUser.username;
+    
+    if (!userId || !username) return res.status(401).json({ message: "Unauthorized" });
+
+    // Get all completed interviews for the user, sorted by completion date
+    const interviews = await Interview.find({
+      username,
+      status: "completed",
+      "scores.overall": { $exists: true, $ne: null }
+    })
+    .sort({ completedAt: 1 })
+    .lean();
+
+    if (interviews.length === 0) {
+      return res.status(200).json({
+        totalInterviews: 0,
+        averageScore: 0,
+        improvement: 0,
+        timeline: [],
+        categoryScores: {},
+        strengths: [],
+        weaknesses: [],
+        nextFocusAreas: []
+      });
+    }
+
+    // Calculate timeline data (for line chart)
+    const timeline = interviews.map((interview, index) => ({
+      date: interview.completedAt,
+      role: interview.role,
+      difficulty: interview.difficulty,
+      overallScore: interview.scores.overall,
+      interviewNumber: index + 1,
+      id: interview._id
+    }));
+
+    // Calculate average scores per category
+    const categoryScores = {
+      communication: 0,
+      technicalSkills: 0,
+      problemSolving: 0,
+      confidence: 0,
+      clarity: 0
+    };
+
+    interviews.forEach(interview => {
+      Object.keys(categoryScores).forEach(key => {
+        categoryScores[key] += interview.scores[key] || 0;
+      });
+    });
+
+    Object.keys(categoryScores).forEach(key => {
+      categoryScores[key] = Math.round(categoryScores[key] / interviews.length);
+    });
+
+    // Calculate improvement (first vs last 3 interviews)
+    const firstScore = interviews[0].scores.overall;
+    const recentInterviews = interviews.slice(-3);
+    const recentAverage = Math.round(
+      recentInterviews.reduce((sum, iv) => sum + iv.scores.overall, 0) / recentInterviews.length
+    );
+    const improvement = recentAverage - firstScore;
+
+    // Aggregate strengths and weaknesses
+    const strengthsMap = {};
+    const weaknessesMap = {};
+    const focusAreasMap = {};
+
+    interviews.forEach(interview => {
+      if (interview.feedback) {
+        (interview.feedback.strengths || []).forEach(s => {
+          strengthsMap[s] = (strengthsMap[s] || 0) + 1;
+        });
+        (interview.feedback.weaknesses || []).forEach(w => {
+          weaknessesMap[w] = (weaknessesMap[w] || 0) + 1;
+        });
+        (interview.feedback.nextFocusAreas || []).forEach(f => {
+          focusAreasMap[f] = (focusAreasMap[f] || 0) + 1;
+        });
+      }
+    });
+
+    // Get top 5 strengths, weaknesses, and focus areas
+    const strengths = Object.entries(strengthsMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([text, count]) => ({ text, count }));
+
+    const weaknesses = Object.entries(weaknessesMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([text, count]) => ({ text, count }));
+
+    const nextFocusAreas = Object.entries(focusAreasMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([text, count]) => ({ text, count }));
+
+    console.log(`✅ Analytics generated for ${interviews.length} interviews`);
+
+    return res.status(200).json({
+      totalInterviews: interviews.length,
+      averageScore: recentAverage,
+      improvement,
+      timeline,
+      categoryScores,
+      strengths,
+      weaknesses,
+      nextFocusAreas
+    });
+  } catch (err) {
+    console.error("❌ getProgressAnalytics error:", err);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
