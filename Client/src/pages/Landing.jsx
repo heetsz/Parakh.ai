@@ -78,16 +78,6 @@ const Landing = () => {
       description: "Connect with fellow learners, share resources, and collaborate on your journey to success."
     },
     {
-      icon: Trophy,
-      title: "Gamification",
-      description: "Stay motivated with achievements, leaderboards, and rewards as you complete challenges."
-    },
-    {
-      icon: BookOpen,
-      title: "Comprehensive Study Material",
-      description: "Access curated resources including LeetCode questions and Striver's Sheet for structured learning."
-    },
-    {
       icon: GalleryVerticalEnd,
       title: "System Design Board",
       description: "Master system design with interactive whiteboard and collaborative problem-solving tools."

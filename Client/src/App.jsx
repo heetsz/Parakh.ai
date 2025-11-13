@@ -11,11 +11,9 @@ import Interviews from './pages/dashboard/Interviews';
 import InterviewLive from './pages/dashboard/InterviewLive';
 
 import Progress from './pages/dashboard/Progress';
+import InterviewProgress from './pages/dashboard/InterviewProgress';
+import OAProgress from './pages/dashboard/OAProgress';
 import Community from './pages/dashboard/Community';
-import Gamification from './pages/dashboard/Gamification';
-
-import StudyMaterialLeetcode from './pages/dashboard/StudyMaterialLeetcode';
-import StudyMaterialStrivers from './pages/dashboard/StudyMaterialStrivers';
 
 import Settings from './pages/dashboard/Settings';
 
@@ -87,12 +85,9 @@ const App = () => {
 
             {/* Other Pages */}
             <Route path="progress" element={<Progress />} />
+            <Route path="progress/interview" element={<InterviewProgress />} />
+            <Route path="progress/oa" element={<OAProgress />} />
             <Route path="community" element={<Community />} />
-            <Route path="gamification" element={<Gamification />} />
-
-            {/* Study Material */}
-            <Route path="study-material/leetcode" element={<StudyMaterialLeetcode />} />
-            <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
 
             {/* Additional Modules */}
             <Route path="oa-prep" element={<OAPrep />} />

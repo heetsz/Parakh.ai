@@ -6,7 +6,6 @@ import db from "./config/db.js";
 
 import authRouter from "./routes/auth-route.js";
 import mailRouter from "./routes/mail-route.js";
-import gamificationRoutes from "./routes/gamification-route.js";
 import interviewRoutes from "./routes/interview-route.js";
 import postRouter from "./routes/post-route.js";
 import oaRouter from "./routes/oa-route.js";
@@ -55,7 +54,6 @@ app.get("/health", (req, res) => {
 // API Routes
 app.use("/api", authRouter);
 app.use("/api", mailRouter);
-app.use("/api/gamification", gamificationRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/community", postRouter);
 app.use("/api/oa", oaRouter);

@@ -70,19 +70,17 @@ export function AppSidebar(props) {
       // Single-tab sections
       { title: "Interviews", url: "/dashboard/interviews", icon: Users, isActive: true },
       { title: "OA Prep", url: "/dashboard/oa-prep", icon: Brain },
-      { title: "Progress", url: "/dashboard/progress", icon: TrendingUp },
-      { title: "Community", url: "/dashboard/community", icon: MessageSquare },
-      { title: "Gamification", url: "/dashboard/gamification", icon: Trophy },
-      { title: "System Design Board", url: "/dashboard/system-design", icon: GalleryVerticalEnd },   
       {
-        title: "Study Material",
-        url: "/dashboard/study-material",
-        icon: BookOpen,
+        title: "Track Progress",
+        url: "/dashboard/progress",
+        icon: TrendingUp,
         items: [
-          { title: "Leetcode Questions", url: "/dashboard/study-material/leetcode", icon: Code },
-          { title: "Striver's Sheet", url: "/dashboard/study-material/strivers-sheet", icon: ListChecks },
+          { title: "Interview Progress", url: "/dashboard/progress/interview", icon: Users },
+          { title: "OA Progress", url: "/dashboard/progress/oa", icon: Brain },
         ],
       },
+      { title: "Community", url: "/dashboard/community", icon: MessageSquare },
+      { title: "System Design Board", url: "/dashboard/system-design", icon: GalleryVerticalEnd },
     ],
   }
 

@@ -72,10 +72,18 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       "correctAnswer": "A",
       "explanation": "Detailed explanation of why this answer is correct and why others are wrong. Include additional context to help learning.",
       "difficulty": "easy",
-      "topic": "Specific topic/concept"
+      "topic": "Specific topic/concept",
+      "timeInSeconds": 60
     }
-  ]
+  ],
+  "totalTimeInSeconds": 600
 }
+
+IMPORTANT: Calculate appropriate time for each question:
+- Simple concept/definition questions: 45-60 seconds
+- Moderate complexity/code reading: 75-90 seconds
+- Complex problem-solving/analysis: 90-120 seconds
+- Set totalTimeInSeconds as sum of all individual question times (this should be somewhat more than ideal/best case scenario)
 
 Generate exactly ${numberOfQuestions} questions following these guidelines strictly.`;
 
@@ -127,7 +135,17 @@ Generate exactly ${numberOfQuestions} questions following these guidelines stric
         if (!['A', 'B', 'C', 'D'].includes(q.correctAnswer)) {
           throw new Error(`Question ${idx + 1} has invalid correct answer`);
         }
+
+        // Set default time if not provided
+        if (!q.timeInSeconds) {
+          q.timeInSeconds = 75; // default 75 seconds
+        }
       });
+
+      // Calculate total time if not provided
+      if (!quizData.totalTimeInSeconds) {
+        quizData.totalTimeInSeconds = quizData.questions.reduce((sum, q) => sum + (q.timeInSeconds || 75), 0);
+      }
 
     } catch (parseError) {
       console.error("Parse error:", parseError);

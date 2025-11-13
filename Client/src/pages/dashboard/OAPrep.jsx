@@ -75,8 +75,8 @@ export default function OAPrep() {
       setQuiz(response.data.quiz);
       setStep("quiz");
       setQuizStartTime(Date.now());
-      // Set timer: 1.5 minutes per question
-      setTimeRemaining(formData.numberOfQuestions * 90);
+      // Use AI-calculated time duration from response
+      setTimeRemaining(response.data.quiz.totalTimeInSeconds || formData.numberOfQuestions * 75);
     } catch (error) {
       console.error("Error generating quiz:", error);
       alert(error.response?.data?.message || "Failed to generate quiz. Please try again.");
@@ -147,16 +147,83 @@ export default function OAPrep() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Helper function to render text with code formatting
+  const renderTextWithCode = (text) => {
+    if (!text) return null;
+    
+    // Check if text contains code blocks
+    const hasCodeBlock = /```[\s\S]*?```|`[^`]+`/.test(text);
+    
+    if (!hasCodeBlock) {
+      return <span className="whitespace-pre-wrap">{text}</span>;
+    }
+    
+    // Split by code blocks (text between backticks or marked with ```)
+    const parts = [];
+    let currentIndex = 0;
+    
+    // Match code blocks with triple backticks or single backticks
+    const codeBlockRegex = /```([\s\S]*?)```|`([^`]+)`/g;
+    let match;
+    
+    while ((match = codeBlockRegex.exec(text)) !== null) {
+      // Add text before code block
+      if (match.index > currentIndex) {
+        parts.push({
+          type: 'text',
+          content: text.substring(currentIndex, match.index)
+        });
+      }
+      
+      // Add code block
+      parts.push({
+        type: 'code',
+        content: match[1] || match[2], // match[1] for ```, match[2] for `
+        isBlock: !!match[1] // true for ```, false for `
+      });
+      
+      currentIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (currentIndex < text.length) {
+      parts.push({
+        type: 'text',
+        content: text.substring(currentIndex)
+      });
+    }
+    
+    return (
+      <div>
+        {parts.map((part, idx) => (
+          part.type === 'code' ? (
+            part.isBlock ? (
+              <pre key={idx} className="bg-muted p-3 rounded-md overflow-x-auto text-sm font-mono border my-2">
+                <code className="whitespace-pre">{part.content}</code>
+              </pre>
+            ) : (
+              <code key={idx} className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono">
+                {part.content}
+              </code>
+            )
+          ) : (
+            <span key={idx} className="whitespace-pre-wrap">{part.content}</span>
+          )
+        ))}
+      </div>
+    );
+  };
+
   // Setup Step
   if (step === "setup") {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">OA Preparation</h1>
           <p className="text-muted-foreground mt-1">Generate AI-powered quiz questions tailored to your interview prep needs</p>
         </div>
 
-        <Card>
+        <Card className="border-0 shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
@@ -171,11 +238,18 @@ export default function OAPrep() {
                 id="jobDescription"
                 placeholder="Paste the job description or describe the role you're preparing for. This helps generate more relevant questions..."
                 value={formData.jobDescription}
-                onChange={(e) => setFormData({ ...formData, jobDescription: e.target.value })}
+                onChange={(e) => {
+                  const jd = e.target.value;
+                  setFormData({ 
+                    ...formData, 
+                    jobDescription: jd,
+                    quizType: jd.trim() ? "mixed" : formData.quizType
+                  });
+                }}
                 className="min-h-[120px]"
               />
               <p className="text-xs text-muted-foreground">
-                The more context you provide, the better tailored the questions will be
+                {formData.jobDescription.trim() ? "Quiz type automatically set to Mixed based on JD" : "The more context you provide, the better tailored the questions will be"}
               </p>
             </div>
 
@@ -215,7 +289,16 @@ export default function OAPrep() {
                   min="1"
                   max="50"
                   value={formData.numberOfQuestions}
-                  onChange={(e) => setFormData({ ...formData, numberOfQuestions: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    const clampedValue = Math.max(1, Math.min(50, value));
+                    setFormData({ ...formData, numberOfQuestions: clampedValue });
+                  }}
+                  onBlur={(e) => {
+                    const value = parseInt(e.target.value) || 1;
+                    const clampedValue = Math.max(1, Math.min(50, value));
+                    setFormData({ ...formData, numberOfQuestions: clampedValue });
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">Choose between 1 and 50 questions</p>
               </div>
@@ -236,18 +319,37 @@ export default function OAPrep() {
             </div>
 
             <div className="space-y-2">
-              <Label>Difficulty Level</Label>
-              <div className="flex gap-2">
-                <Badge 
+              <Label>Difficulty Level *</Label>
+              <div className="flex gap-3">
+                <Button
+                  type="button"
                   variant={formData.difficulty === "easy-to-medium" ? "default" : "outline"}
-                  className="cursor-pointer px-4 py-2"
+                  className="flex-1"
                   onClick={() => setFormData({ ...formData, difficulty: "easy-to-medium" })}
                 >
                   Easy to Medium
-                </Badge>
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.difficulty === "medium-to-hard" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setFormData({ ...formData, difficulty: "medium-to-hard" })}
+                >
+                  Medium to Hard
+                </Button>
+                <Button
+                  type="button"
+                  variant={formData.difficulty === "easy-to-hard" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setFormData({ ...formData, difficulty: "easy-to-hard" })}
+                >
+                  Easy to Hard
+                </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Questions will range from fundamental concepts to moderate problem-solving
+                {formData.difficulty === "easy-to-medium" && "Questions will range from fundamental concepts to moderate problem-solving"}
+                {formData.difficulty === "medium-to-hard" && "Questions will range from moderate to advanced problem-solving"}
+                {formData.difficulty === "easy-to-hard" && "Questions will range across all difficulty levels"}
               </p>
             </div>
 
@@ -259,7 +361,7 @@ export default function OAPrep() {
                 <div className="text-sm space-y-1">
                   <p className="font-medium text-blue-900 dark:text-blue-100">Quiz Guidelines</p>
                   <ul className="text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
-                    <li>You'll have 1.5 minutes per question</li>
+                    <li>Time duration is calculated by AI based on question complexity</li>
                     <li>Questions are generated fresh each time</li>
                     <li>Review detailed explanations after submission</li>
                     <li>Aim for 60% or higher to pass</li>
@@ -300,7 +402,7 @@ export default function OAPrep() {
     const isLowTime = timeRemaining < 60;
 
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6">
         {/* Header Stats */}
         <div className="mb-6 flex items-center justify-between">
           <div>
@@ -331,11 +433,11 @@ export default function OAPrep() {
         </div>
 
         {/* Question Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 border-0 shadow-none">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <CardTitle className="text-lg leading-relaxed flex-1">
-                {question.question}
+                {renderTextWithCode(question.question)}
               </CardTitle>
               {question.difficulty && (
                 <Badge variant="secondary" className="flex-shrink-0">
@@ -367,7 +469,7 @@ export default function OAPrep() {
                     <span className={`font-bold ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>
                       {key}.
                     </span>
-                    <span className="flex-1">{value}</span>
+                    <div className="flex-1">{renderTextWithCode(value)}</div>
                     {isSelected && (
                       <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                     )}
@@ -434,6 +536,21 @@ export default function OAPrep() {
             </div>
           </div>
         )}
+
+        {/* Quit Quiz Button */}
+        <div className="mt-6 flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to quit? Your progress will be lost.")) {
+                resetQuiz();
+              }
+            }}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            Quit Quiz
+          </Button>
+        </div>
       </div>
     );
   }
@@ -443,8 +560,8 @@ export default function OAPrep() {
     const timeTaken = quizStartTime ? Math.floor((Date.now() - quizStartTime) / 1000) : 0;
     
     return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <Card>
+      <div className="p-6">
+        <Card className="border-0 shadow-none">
           <CardHeader className="text-center pb-6">
             <div className="mx-auto mb-4">
               {results.passed ? (
