@@ -16,7 +16,6 @@ import Settings from './pages/dashboard/Settings';
 import VerifyEmail from './pages/VerifyEmail';
 import { NotificationProvider } from '@/components/ui/notification';
 import Landing from './pages/Landing';
-
 // ⭐ ADD THIS IMPORT
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
 
@@ -84,7 +83,6 @@ const App = () => {
 
             <Route path="settings" element={<Settings />} />
 
-            {/* ⭐ ADD THIS NEW SYSTEM DESIGN PAGE */}
             <Route path="system-design" element={<SystemDesignBoard />} />
 
           </Route>
