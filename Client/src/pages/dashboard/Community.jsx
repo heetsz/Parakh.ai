@@ -19,6 +19,9 @@ export default function Community() {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
   
   // New post state
   const [newPost, setNewPost] = useState({
@@ -35,8 +38,20 @@ export default function Community() {
   const imageInputRef = useRef(null);
   
   useEffect(() => {
+    fetchCurrentUser();
     fetchPosts();
   }, []);
+  
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/me`, {
+        withCredentials: true
+      });
+      setCurrentUserId(response.data._id);
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+    }
+  };
   
   const fetchPosts = async () => {
     try {
@@ -121,16 +136,27 @@ export default function Community() {
     }
   };
   
-  const handleDeletePost = async (postId) => {
+  const confirmDelete = (postId) => {
+    setPostToDelete(postId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeletePost = async () => {
+    if (!postToDelete) return;
+    
     try {
       await axios.delete(
-        `${API_URL}/community/posts/${postId}`,
+        `${API_URL}/community/posts/${postToDelete}`,
         { withCredentials: true }
       );
       
-      setPosts(posts.filter(post => post._id !== postId));
+      setPosts(posts.filter(post => post._id !== postToDelete));
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
     } catch (error) {
       console.error("Error deleting post:", error);
+      setDeleteDialogOpen(false);
+      setPostToDelete(null);
     }
   };
   
@@ -268,13 +294,15 @@ export default function Community() {
                     </CardDescription>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDeletePost(post._id)}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                {currentUserId === post.author?._id && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => confirmDelete(post._id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
               </div>
             </CardHeader>
             
@@ -493,6 +521,35 @@ export default function Community() {
               className="w-full"
             >
               {isCreating ? "Posting..." : "Post"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Post</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this post? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setPostToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeletePost}
+            >
+              Delete
             </Button>
           </div>
         </DialogContent>
