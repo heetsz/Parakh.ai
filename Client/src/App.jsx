@@ -17,6 +17,11 @@ import Settings from './pages/dashboard/Settings';
 import VerifyEmail from './pages/VerifyEmail';
 import { NotificationProvider } from '@/components/ui/notification';
 import Landing from './pages/Landing';
+<<<<<<< Updated upstream
+=======
+import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
+import OAPrep from './pages/dashboard/OAPrep';
+>>>>>>> Stashed changes
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -58,6 +63,7 @@ const App = () => {
         />
           <Route path="/verify-email" element={token ? <Navigate to="/dashboard" replace /> : <VerifyEmail />} />
 
+<<<<<<< Updated upstream
         <Route
           path="/dashboard"
           element={token ? <Dashboard /> : <Navigate to="/login" replace />}
@@ -74,6 +80,51 @@ const App = () => {
           <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
           <Route path="settings" element={<Settings />} />
         </Route>
+=======
+          <Route path="/" element={<Landing />} />
+
+          <Route
+            path="/login"
+            element={token ? <Navigate to="/dashboard" replace /> : <Login />}
+          />
+
+          <Route
+            path="/register"
+            element={token ? <Navigate to="/dashboard" replace /> : <Register />}
+          />
+
+          <Route
+            path="/verify-email"
+            element={token ? <Navigate to="/dashboard" replace /> : <VerifyEmail />}
+          />
+
+          <Route
+            path="/dashboard"
+            element={token ? <Dashboard /> : <Navigate to="/login" replace />}
+          >
+            {/* Default route */}
+            <Route index element={<Navigate to="interviews" replace />} />
+            
+            <Route path="interviews" element={<Interviews />} />
+            <Route path="interviews/live/:id" element={<InterviewLive />} />
+
+            <Route path="progress" element={<Progress />} />
+            <Route path="community" element={<Community />} />
+            <Route path="gamification" element={<Gamification />} />
+
+            <Route path="study-material/leetcode" element={<StudyMaterialLeetcode />} />
+            <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
+
+            <Route path="oa-prep" element={<OAPrep />} />
+
+            <Route path="settings" element={<Settings />} />
+
+            <Route path="system-design" element={<SystemDesignBoard />} />
+
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+>>>>>>> Stashed changes
 
         <Route path="*" element={<NotFound />} />
         </Routes>
