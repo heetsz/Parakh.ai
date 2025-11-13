@@ -16,7 +16,6 @@ import Settings from './pages/dashboard/Settings';
 import VerifyEmail from './pages/VerifyEmail';
 import { NotificationProvider } from '@/components/ui/notification';
 import Landing from './pages/Landing';
-// ⭐ ADD THIS IMPORT
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
 
 const App = () => {
@@ -71,7 +70,6 @@ const App = () => {
             <Route index element={<Navigate to="interviews" replace />} />
             
             <Route path="interviews" element={<Interviews />} />
-            <Route path="interviews/create" element={<CreateInterview />} />
             <Route path="interviews/live/:id" element={<InterviewLive />} />
 
             <Route path="progress" element={<Progress />} />

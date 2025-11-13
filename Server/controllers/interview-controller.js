@@ -75,7 +75,9 @@ export const createInterview = async (req, res) => {
 
 export const listInterviews = async (req, res) => {
   try {
-    const username = req.user?.username;
+    const userId = req.user?._id;
+    const foundUser = await User.findById(userId);
+    const username = foundUser.username
     if (!username) return res.status(401).json({ message: "Unauthorized" });
 
     const items = await Interview.find({ username }).sort({ createdAt: -1 }).lean();
@@ -88,8 +90,9 @@ export const listInterviews = async (req, res) => {
 
 export const getInterview = async (req, res) => {
   try {
-    const userId = req.user?.userId;
-    const username = req.user?.username;
+    const userId = req.user?._id;
+    const foundUser = await User.findById(userId);
+    const username = foundUser.username
     if (!userId || !username) return res.status(401).json({ message: "Unauthorized" });
 
     const { id } = req.params;
