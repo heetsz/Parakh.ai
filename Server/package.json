@@ -14,7 +14,10 @@
   "description": "",
   "dependencies": {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
     "@google/genai": "^1.29.1",
     "axios": "^1.13.2",
 >>>>>>> Stashed changes
