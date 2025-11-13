@@ -1,39 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
+
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
+
 import Interviews from './pages/dashboard/Interviews';
-import CreateInterview from './pages/dashboard/CreateInterview';
 import InterviewLive from './pages/dashboard/InterviewLive';
+
 import Progress from './pages/dashboard/Progress';
 import Community from './pages/dashboard/Community';
 import Gamification from './pages/dashboard/Gamification';
+
 import StudyMaterialLeetcode from './pages/dashboard/StudyMaterialLeetcode';
 import StudyMaterialStrivers from './pages/dashboard/StudyMaterialStrivers';
+
 import Settings from './pages/dashboard/Settings';
+
 import VerifyEmail from './pages/VerifyEmail';
-import { NotificationProvider } from '@/components/ui/notification';
 import Landing from './pages/Landing';
-<<<<<<< Updated upstream
-=======
+
+import { NotificationProvider } from '@/components/ui/notification';
+
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
-import OAPrep from './pages/dashboard/OAPrep';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+import OAPrep from './pages/dashboard/OAPrep'; // kept from quiz branch
 
 const App = () => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
     const base_url = import.meta.env.VITE_BACKEND_URL;
+
     const checkToken = async () => {
       try {
         const res = await axios.get(`${base_url}/me`, { withCredentials: true });
@@ -44,6 +43,7 @@ const App = () => {
         setToken(false);
       }
     };
+
     checkToken();
 
     // Recheck token every hour
@@ -55,38 +55,7 @@ const App = () => {
     <NotificationProvider>
       <BrowserRouter>
         <Routes>
-        <Route
-          path="/"
-          element={<Landing />}
-        />
-        <Route
-          path="/login"
-          element={token ? <Navigate to="/dashboard" replace /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={token ? <Navigate to="/dashboard" replace /> : <Register />}
-        />
-          <Route path="/verify-email" element={token ? <Navigate to="/dashboard" replace /> : <VerifyEmail />} />
 
-<<<<<<< Updated upstream
-        <Route
-          path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/login" replace />}
-        >
-          {/* Default to Interviews when opening dashboard */}
-          <Route index element={<Navigate to="interviews" replace />} />
-          <Route path="interviews" element={<Interviews />} />
-          <Route path="interviews/create" element={<CreateInterview />} />
-          <Route path="interviews/live/:id" element={<InterviewLive />} />
-          <Route path="progress" element={<Progress />} />
-          <Route path="community" element={<Community />} />
-          <Route path="gamification" element={<Gamification />} />
-          <Route path="study-material/leetcode" element={<StudyMaterialLeetcode />} />
-          <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-=======
           <Route path="/" element={<Landing />} />
 
           <Route
@@ -108,31 +77,34 @@ const App = () => {
             path="/dashboard"
             element={token ? <Dashboard /> : <Navigate to="/login" replace />}
           >
+
             {/* Default route */}
             <Route index element={<Navigate to="interviews" replace />} />
-            
+
+            {/* Interview Routes */}
             <Route path="interviews" element={<Interviews />} />
             <Route path="interviews/live/:id" element={<InterviewLive />} />
 
+            {/* Other Pages */}
             <Route path="progress" element={<Progress />} />
             <Route path="community" element={<Community />} />
             <Route path="gamification" element={<Gamification />} />
 
+            {/* Study Material */}
             <Route path="study-material/leetcode" element={<StudyMaterialLeetcode />} />
             <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
 
+            {/* Additional Modules */}
             <Route path="oa-prep" element={<OAPrep />} />
-
-            <Route path="settings" element={<Settings />} />
-
             <Route path="system-design" element={<SystemDesignBoard />} />
+
+            {/* Settings */}
+            <Route path="settings" element={<Settings />} />
 
           </Route>
 
           <Route path="*" element={<NotFound />} />
->>>>>>> Stashed changes
 
-        <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </NotificationProvider>

@@ -73,7 +73,7 @@ export function AppSidebar(props) {
       { title: "Progress", url: "/dashboard/progress", icon: TrendingUp },
       { title: "Community", url: "/dashboard/community", icon: MessageSquare },
       { title: "Gamification", url: "/dashboard/gamification", icon: Trophy },
-      // Dropdown section
+      { title: "System Design Board", url: "/dashboard/system-design", icon: GalleryVerticalEnd },   
       {
         title: "Study Material",
         url: "/dashboard/study-material",

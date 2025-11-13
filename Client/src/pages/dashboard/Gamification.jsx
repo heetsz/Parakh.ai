@@ -160,7 +160,7 @@ export default function Gamification() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-gray-50 to-white border-b">
+      <div className="bg-linear-to-br from-gray-50 to-white border-b">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="flex items-center justify-between">
             <div>
@@ -285,7 +285,7 @@ export default function Gamification() {
 
         {/* 🚀 Contest Section */}
         <div className="mt-10">
-          <Card className="border-2 border-black shadow-lg bg-gradient-to-r from-gray-50 to-white">
+          <Card className="border-2 border-black shadow-lg bg-linear-to-r from-gray-50 to-white">
             <CardContent className="p-8 text-center">
               <Rocket className="w-10 h-10 mx-auto mb-3 text-black" />
               <h2 className="text-2xl font-bold mb-2 text-black">
