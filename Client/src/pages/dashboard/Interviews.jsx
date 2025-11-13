@@ -21,7 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Play, Trash2 } from "lucide-react";
+import { Plus, Play, Trash2, Video } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Interviews = () => {
   const base_url = import.meta.env.VITE_BACKEND_URL;
@@ -31,14 +32,13 @@ const Interviews = () => {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [replayOpen, setReplayOpen] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState(null);
+  const [playingAudio, setPlayingAudio] = useState(null);
 
   const [form, setForm] = useState({
-    title: "",
     role: "",
-    experience: "",
-    type: "",
     difficulty: "",
-    resume: "",
     notes: "",
   });
 
@@ -75,12 +75,8 @@ const Interviews = () => {
       
       setOpen(false);
       setForm({
-        title: "",
         role: "",
-        experience: "",
-        type: "",
         difficulty: "",
-        resume: "",
         notes: "",
       });
       
@@ -93,14 +89,21 @@ const Interviews = () => {
     }
   };
 
-  const getImageByType = (type) => {
+  const getImageByType = (role) => {
     // Example: images stored in /public/interview_types/
-    const lower = type.toLowerCase();
+    const lower = role.toLowerCase();
     return `/interview_types/${lower || "default"}.png`;
   };
 
   const handleJoinInterview = (interviewId) => {
     navigate(`/dashboard/interviews/live/${interviewId}`);
+  };
+
+  const handleViewRecording = (interview) => {
+    console.log('Selected interview:', interview);
+    console.log('Conversation data:', interview.conversation);
+    setSelectedInterview(interview);
+    setReplayOpen(true);
   };
 
   const handleDeleteInterview = async (interviewId, interviewTitle) => {
@@ -120,7 +123,7 @@ const Interviews = () => {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold">My Interviews</h1>
+        {/* <h1 className="text-3xl font-semibold">My Interviews</h1> */}
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-5 w-5 mr-2" /> 
           Create Interview
@@ -138,8 +141,8 @@ const Interviews = () => {
         {interviews.map((interview) => (
           <Card key={interview._id}>
             <img
-              src={getImageByType(interview.type)}
-              alt={interview.type}
+              src={getImageByType(interview.role)}
+              alt={interview.role}
               className="w-full h-40 object-cover rounded-t-xl"
             />
             <CardHeader>
@@ -147,21 +150,43 @@ const Interviews = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <p><span className="font-semibold">Role:</span> {interview.role}</p>
-              <p><span className="font-semibold">Type:</span> {interview.type}</p>
               <p><span className="font-semibold">Difficulty:</span> {interview.difficulty}</p>
+              <p className="text-sm text-gray-500">
+                <span className="font-semibold">Created:</span>{" "}
+                {new Date(interview.createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}{" "}
+                at {new Date(interview.createdAt).toLocaleTimeString('en-US', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </p>
               <Badge variant={interview.status === "completed" ? "default" : "secondary"}>
                 {interview.status.replace("_", " ")}
               </Badge>
               
               <div className="flex gap-2 mt-4">
-                <Button 
-                  onClick={() => handleJoinInterview(interview._id)}
-                  className="flex-1"
-                  variant="default"
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Join
-                </Button>
+                {interview.status === "completed" && interview.conversation?.length > 0 ? (
+                  <Button 
+                    onClick={() => handleViewRecording(interview)}
+                    className="flex-1"
+                    variant="default"
+                  >
+                    <Video className="h-4 w-4 mr-2" />
+                    View Recording
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => handleJoinInterview(interview._id)}
+                    className="flex-1"
+                    variant="default"
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Join
+                  </Button>
+                )}
                 
                 <Button 
                   onClick={() => handleDeleteInterview(interview._id, interview.title)}
@@ -188,17 +213,6 @@ const Interviews = () => {
           </DialogHeader>
           <form onSubmit={handleCreateInterview} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Interview Title</Label>
-              <Input 
-                id="title"
-                name="title" 
-                value={form.title} 
-                onChange={handleChange} 
-                placeholder="e.g., Frontend Developer Interview"
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
               <Input 
                 id="role"
@@ -210,46 +224,13 @@ const Interviews = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="experience">Experience</Label>
-              <Input 
-                id="experience"
-                name="experience" 
-                value={form.experience} 
-                onChange={handleChange}
-                placeholder="e.g., 2-3 years"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Input 
-                id="type"
-                name="type" 
-                placeholder="e.g., Behavioral, Technical" 
-                value={form.type} 
-                onChange={handleChange} 
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="difficulty">Difficulty</Label>
               <Input 
                 id="difficulty"
                 name="difficulty" 
                 value={form.difficulty} 
                 onChange={handleChange}
-                placeholder="e.g., Medium"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="resume">Resume (URL)</Label>
-              <Input 
-                id="resume"
-                name="resume" 
-                value={form.resume} 
-                onChange={handleChange}
-                placeholder="https://..."
+                placeholder="e.g., Easy, Medium, Hard"
                 required
               />
             </div>
@@ -269,6 +250,83 @@ const Interviews = () => {
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Replay Dialog */}
+      <Dialog open={replayOpen} onOpenChange={setReplayOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>{selectedInterview?.title || "Interview Recording"}</DialogTitle>
+            <DialogDescription>
+              Review the conversation from your interview session
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="h-[500px] w-full rounded-md border p-4">
+            {selectedInterview?.conversation && selectedInterview.conversation.length > 0 ? (
+              <div className="space-y-4">
+                {selectedInterview.conversation.map((turn, idx) => (
+                  <div 
+                    key={idx}
+                    className={`flex flex-col p-3 rounded-lg ${
+                      turn.speaker === 'user' 
+                        ? 'bg-blue-50 border-l-4 border-blue-500' 
+                        : 'bg-green-50 border-l-4 border-green-500'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant={turn.speaker === 'user' ? 'default' : 'secondary'}>
+                        {turn.speaker === 'user' ? 'You' : 'AI Interviewer'}
+                      </Badge>
+                      <span className="text-xs text-gray-500">
+                        {new Date(turn.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    
+                    <p className="text-sm mb-2">{turn.text}</p>
+                    
+                    {turn.audioUrl ? (
+                      <div className="space-y-1">
+                        <audio 
+                          controls 
+                          className="w-full h-10"
+                          onPlay={() => setPlayingAudio(idx)}
+                          onPause={() => setPlayingAudio(null)}
+                          preload="metadata"
+                        >
+                          <source src={turn.audioUrl} type="audio/webm" />
+                          <source src={turn.audioUrl} type="audio/wav" />
+                          <source src={turn.audioUrl} type="audio/mpeg" />
+                          Your browser does not support the audio element.
+                        </audio>
+                        <p className="text-xs text-gray-400 truncate">Audio: {turn.audioUrl}</p>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 italic">No audio recording available</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                No conversation recorded for this interview
+              </div>
+            )}
+          </ScrollArea>
+
+          {selectedInterview?.result?.evaluation && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <h4 className="font-semibold mb-2">Evaluation</h4>
+              <p className="text-sm text-gray-700">{selectedInterview.result.evaluation}</p>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setReplayOpen(false)} variant="outline">
+              Close
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

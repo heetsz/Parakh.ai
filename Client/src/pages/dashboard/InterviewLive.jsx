@@ -26,6 +26,51 @@ export default function InterviewLive() {
   const [evaluation, setEvaluation] = useState(null);
   const [userTranscript, setUserTranscript] = useState("");
   const [aiTranscript, setAiTranscript] = useState("");
+  const currentUserAudioChunks = useRef([]);
+  const currentAiAudioBlob = useRef(null);
+
+  // Helper function to upload audio to Cloudinary
+  const uploadAudio = async (speaker, audioBlob) => {
+    try {
+      console.log(`🎵 Uploading ${speaker} audio, size: ${audioBlob.size} bytes`);
+      
+      const formData = new FormData();
+      formData.append('audio', audioBlob);
+      formData.append('speaker', speaker);
+
+      const response = await axios.post(
+        `${base_url}/interviews/${id}/upload-audio`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true
+        }
+      );
+
+      console.log(`✅ ${speaker} audio uploaded:`, response.data.audioUrl);
+      return response.data.audioUrl;
+    } catch (error) {
+      console.error(`❌ Failed to upload ${speaker} audio:`, error.response?.data || error);
+      return null;
+    }
+  };
+
+  // Helper function to save conversation turn
+  const saveConversationTurn = async (speaker, text, audioUrl) => {
+    try {
+      console.log(`💾 Saving conversation turn - Speaker: ${speaker}, Audio URL: ${audioUrl}`);
+      
+      const response = await axios.post(
+        `${base_url}/interviews/${id}/conversation`,
+        { speaker, text, audioUrl },
+        { withCredentials: true }
+      );
+      
+      console.log(`✅ Conversation turn saved:`, response.data);
+    } catch (error) {
+      console.error(`❌ Failed to save conversation turn:`, error.response?.data || error);
+    }
+  };
 
   // Fetch interview details
   useEffect(() => {
@@ -67,10 +112,7 @@ export default function InterviewLive() {
       const contextData = {
         title: interview.title,
         role: interview.role,
-        experience: interview.experience,
-        type: interview.type,
         difficulty: interview.difficulty,
-        resume: interview.resume,
         notes: interview.notes
       };
       
@@ -88,18 +130,35 @@ export default function InterviewLive() {
           
           if (data.type === "assistant_text") {
             // User's transcribed speech
-            setUserTranscript(data.transcript);
+            const userText = data.transcript;
+            setUserTranscript(userText);
             setMessages((prev) => [
               ...prev,
-              { from: "you", text: data.transcript, ts: new Date() }
+              { from: "you", text: userText, ts: new Date() }
             ]);
             
+            // Upload user audio and save to database
+            if (currentUserAudioChunks.current.length > 0) {
+              console.log(`📼 User audio chunks: ${currentUserAudioChunks.current.length} chunks`);
+              const userBlob = new Blob(currentUserAudioChunks.current, { type: "audio/webm" });
+              const userAudioUrl = await uploadAudio('user', userBlob);
+              await saveConversationTurn('user', userText, userAudioUrl);
+              currentUserAudioChunks.current = []; // Clear after saving
+            } else {
+              console.log('⚠️ No user audio chunks to upload');
+            }
+            
             // AI's response text
-            setAiTranscript(data.text);
+            const aiText = data.text;
+            setAiTranscript(aiText);
             setMessages((prev) => [
               ...prev,
-              { from: "bot", text: data.text, ts: new Date() }
+              { from: "bot", text: aiText, ts: new Date() }
             ]);
+            
+            // We'll save AI audio when we receive the binary data
+            // Store AI text temporarily for when audio arrives
+            currentAiAudioBlob.current = { text: aiText };
           } else if (data.type === "assistant_audio") {
             // Next message will be audio
           } else if (data.type === "evaluation") {
@@ -110,12 +169,23 @@ export default function InterviewLive() {
         }
       } else {
         // Binary audio from AI
+        console.log('🔊 Received AI audio binary data');
         const blob = new Blob([event.data], { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
         const audioEl = audioPlayerRef.current;
         if (audioEl) {
           audioEl.src = url;
           audioEl.play().catch((err) => console.error("Audio play error:", err));
+        }
+        
+        // Upload AI audio and save conversation turn
+        if (currentAiAudioBlob.current?.text) {
+          console.log('📼 Uploading AI audio and saving turn');
+          const aiAudioUrl = await uploadAudio('ai', blob);
+          await saveConversationTurn('ai', currentAiAudioBlob.current.text, aiAudioUrl);
+          currentAiAudioBlob.current = null; // Clear after saving
+        } else {
+          console.log('⚠️ No AI text stored for audio');
         }
       }
     };
@@ -187,10 +257,12 @@ export default function InterviewLive() {
       const mr = new MediaRecorder(audioOnly, { mimeType });
       mediaRecorderRef.current = mr;
       chunksRef.current = [];
+      currentUserAudioChunks.current = [];
 
       mr.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
           chunksRef.current.push(e.data);
+          currentUserAudioChunks.current.push(e.data); // Store for upload
         }
       };
 
@@ -231,8 +303,23 @@ export default function InterviewLive() {
 
   // End call
   const endCall = async () => {
+    // Send end_call message to get evaluation
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: "end_call" }));
+      
+      // Wait a bit for evaluation to arrive
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    // Mark interview as complete in database
+    try {
+      await axios.post(
+        `${base_url}/interviews/${id}/complete`,
+        { evaluation },
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error('Failed to complete interview:', error);
     }
     
     // Stop all media tracks
@@ -241,9 +328,7 @@ export default function InterviewLive() {
     }
     
     // Navigate back to interviews page
-    setTimeout(() => {
-      navigate("/dashboard/interviews");
-    }, 1000);
+    navigate("/dashboard/interviews");
   };
 
   // Initialize media on mount

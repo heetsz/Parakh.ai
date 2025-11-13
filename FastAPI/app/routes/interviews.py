@@ -12,10 +12,7 @@ router = APIRouter()
 class InterviewSpec(BaseModel):
     title: Optional[str]
     role: Optional[str]
-    experience: Optional[str]
-    type: Optional[str]
     difficulty: Optional[str]
-    resume: Optional[str]
     notes: Optional[str]
 
 
@@ -32,18 +29,16 @@ async def generate_interview(spec: InterviewSpec):
     model = os.getenv("GROQ_LLM_MODEL", GROQ_LLM_MODEL)
 
     system_prompt = (
-        "You are an expert interviewer generator. Given a job role, candidate experience level, "
-        "interview type, difficulty, and optional resume/notes, produce a JSON object with a concise title "
-        "and an array of 6-10 interview questions appropriate to the role and difficulty. "
+        "You are an expert interviewer generator. Given a job role and difficulty level, "
+        "produce a JSON object with a concise title and an array of 6-10 interview questions "
+        "appropriate to the role and difficulty. "
         "Return ONLY valid JSON. The JSON schema should be: {\n  \"title\": string,\n  \"questions\": [\n    {\"question\": string, \"topic\": string, \"difficulty\": string}\n  ]\n}\n"
     )
 
     user_content = (
         f"Role: {spec.role or ''}\n"
-        f"Experience: {spec.experience or ''}\n"
-        f"Type: {spec.type or ''}\n"
         f"Difficulty: {spec.difficulty or ''}\n"
-        f"Resume/Notes: {spec.resume or spec.notes or ''}\n"
+        f"Notes: {spec.notes or ''}\n"
     )
 
     try:

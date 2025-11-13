@@ -1,5 +1,11 @@
 import Interview from "../models/Interview.js";
 import User from "../models/User.js";
+import { uploadAudio } from "../config/cloudinary.js";
+import multer from 'multer';
+
+// Configure multer for memory storage
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
 
 export const createInterview = async (req, res) => {
   try {
@@ -9,22 +15,18 @@ export const createInterview = async (req, res) => {
     if (!userId || !username) return res.status(401).json({ message: "Unauthorized" });
 
     const {
-      title,
       role,
-      experience,
-      type,
       difficulty,
-      resume,
       notes,
     } = req.body;
 
+    // Generate title using simple logic (role + difficulty)
+    const title = `${role} - ${difficulty} Interview`;
+
     const newInterview = new Interview({
-      title: title || "",
+      title,
       role: role || "",
-      experience: experience || "",
-      type: type || "",
       difficulty: difficulty || "",
-      resume: resume || "",
       notes: notes || "",
       user: userId,
       username,
@@ -42,10 +44,7 @@ export const createInterview = async (req, res) => {
       const genResp = await axios.post(`${fastapiUrl}/interviews/generate`, {
         title: newInterview.title,
         role: newInterview.role,
-        experience: newInterview.experience,
-        type: newInterview.type,
         difficulty: newInterview.difficulty,
-        resume: newInterview.resume,
         notes: newInterview.notes,
       }, {
         timeout: 30000 // 30 second timeout
@@ -133,6 +132,154 @@ export const deleteInterview = async (req, res) => {
     return res.status(200).json({ message: "Interview deleted successfully" });
   } catch (err) {
     console.error("deleteInterview error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const saveConversationTurn = async (req, res) => {
+  try {
+    console.log('💾 Save conversation turn request received');
+    
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const { id } = req.params;
+    const { speaker, text, audioUrl } = req.body;
+
+    console.log(`   Interview ID: ${id}`);
+    console.log(`   Speaker: ${speaker}`);
+    console.log(`   Text length: ${text?.length || 0} chars`);
+    console.log(`   Audio URL: ${audioUrl || 'none'}`);
+
+    if (!speaker || !text) {
+      return res.status(400).json({ message: "Speaker and text are required" });
+    }
+
+    const interview = await Interview.findById(id);
+    if (!interview) {
+      console.log('❌ Interview not found');
+      return res.status(404).json({ message: "Interview not found" });
+    }
+
+    // Check if user owns this interview
+    if (interview.user.toString() !== userId.toString()) {
+      console.log('❌ User does not own this interview');
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Add conversation turn
+    interview.conversation.push({
+      speaker,
+      text,
+      audioUrl: audioUrl || null,
+      timestamp: new Date()
+    });
+
+    console.log(`✅ Conversation turn added. Total turns: ${interview.conversation.length}`);
+
+    // Update status to in_progress if it's the first turn
+    if (interview.status === "ready" || interview.status === "pending") {
+      interview.status = "in_progress";
+      interview.startedAt = new Date();
+      console.log('   Status updated to in_progress');
+    }
+
+    interview.updatedAt = new Date();
+    await interview.save();
+
+    console.log('✅ Interview saved successfully');
+
+    return res.status(200).json({ 
+      message: "Conversation turn saved",
+      conversation: interview.conversation 
+    });
+  } catch (err) {
+    console.error("❌ saveConversationTurn error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const completeInterview = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const { id } = req.params;
+    const { evaluation } = req.body;
+
+    const interview = await Interview.findById(id);
+    if (!interview) {
+      return res.status(404).json({ message: "Interview not found" });
+    }
+
+    // Check if user owns this interview
+    if (interview.user.toString() !== userId.toString()) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    interview.status = "completed";
+    interview.completedAt = new Date();
+    interview.updatedAt = new Date();
+    
+    if (evaluation) {
+      interview.result = { ...interview.result, evaluation };
+    }
+
+    await interview.save();
+
+    return res.status(200).json({ 
+      message: "Interview completed",
+      interview 
+    });
+  } catch (err) {
+    console.error("completeInterview error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const uploadAudioFile = async (req, res) => {
+  try {
+    console.log('📥 Audio upload request received');
+    
+    const userId = req.user?._id;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    if (!req.file) {
+      console.log('❌ No file in request');
+      return res.status(400).json({ message: "No audio file provided" });
+    }
+
+    const { id } = req.params;
+    const { speaker } = req.body; // 'user' or 'ai'
+    
+    console.log(`   Interview ID: ${id}`);
+    console.log(`   Speaker: ${speaker}`);
+    console.log(`   File size: ${req.file.size} bytes`);
+    console.log(`   File mimetype: ${req.file.mimetype}`);
+
+    // Verify interview exists and user owns it
+    const interview = await Interview.findById(id);
+    if (!interview) {
+      console.log('❌ Interview not found');
+      return res.status(404).json({ message: "Interview not found" });
+    }
+    if (interview.user.toString() !== userId.toString()) {
+      console.log('❌ User does not own this interview');
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Upload to Cloudinary
+    const filename = `${id}_${speaker}_${Date.now()}`;
+    const audioUrl = await uploadAudio(req.file.buffer, filename);
+
+    console.log(`✅ Audio upload complete: ${audioUrl}`);
+
+    return res.status(200).json({ 
+      message: "Audio uploaded successfully",
+      audioUrl 
+    });
+  } catch (err) {
+    console.error("❌ uploadAudioFile error:", err);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
