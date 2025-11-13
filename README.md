@@ -38,3 +38,4 @@ VITE_PRESET_NAME="parakh.ai"
 
 edit with tanish's secret key
 
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
