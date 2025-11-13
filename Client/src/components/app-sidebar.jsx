@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Code,
   ListChecks,
+  Brain,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -68,6 +69,7 @@ export function AppSidebar(props) {
     navMain: [
       // Single-tab sections
       { title: "Interviews", url: "/dashboard/interviews", icon: Users, isActive: true },
+      { title: "OA Prep", url: "/dashboard/oa-prep", icon: Brain },
       { title: "Progress", url: "/dashboard/progress", icon: TrendingUp },
       { title: "Community", url: "/dashboard/community", icon: MessageSquare },
       { title: "Gamification", url: "/dashboard/gamification", icon: Trophy },

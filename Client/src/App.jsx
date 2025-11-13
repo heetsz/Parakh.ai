@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
+
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
+
 import Interviews from './pages/dashboard/Interviews';
 import InterviewLive from './pages/dashboard/InterviewLive';
+
 import Progress from './pages/dashboard/Progress';
 import Community from './pages/dashboard/Community';
 import Gamification from './pages/dashboard/Gamification';
+
 import StudyMaterialLeetcode from './pages/dashboard/StudyMaterialLeetcode';
 import StudyMaterialStrivers from './pages/dashboard/StudyMaterialStrivers';
+
 import Settings from './pages/dashboard/Settings';
+
 import VerifyEmail from './pages/VerifyEmail';
-import { NotificationProvider } from '@/components/ui/notification';
 import Landing from './pages/Landing';
+
+import { NotificationProvider } from '@/components/ui/notification';
+
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
+import OAPrep from './pages/dashboard/OAPrep'; // kept from quiz branch
 
 const App = () => {
   const [token, setToken] = useState(null);
 
   useEffect(() => {
     const base_url = import.meta.env.VITE_BACKEND_URL;
+
     const checkToken = async () => {
       try {
         const res = await axios.get(`${base_url}/me`, { withCredentials: true });
@@ -33,6 +43,7 @@ const App = () => {
         setToken(false);
       }
     };
+
     checkToken();
 
     // Recheck token every hour
@@ -66,22 +77,29 @@ const App = () => {
             path="/dashboard"
             element={token ? <Dashboard /> : <Navigate to="/login" replace />}
           >
+
             {/* Default route */}
             <Route index element={<Navigate to="interviews" replace />} />
-            
+
+            {/* Interview Routes */}
             <Route path="interviews" element={<Interviews />} />
             <Route path="interviews/live/:id" element={<InterviewLive />} />
 
+            {/* Other Pages */}
             <Route path="progress" element={<Progress />} />
             <Route path="community" element={<Community />} />
             <Route path="gamification" element={<Gamification />} />
 
+            {/* Study Material */}
             <Route path="study-material/leetcode" element={<StudyMaterialLeetcode />} />
             <Route path="study-material/strivers-sheet" element={<StudyMaterialStrivers />} />
 
-            <Route path="settings" element={<Settings />} />
-
+            {/* Additional Modules */}
+            <Route path="oa-prep" element={<OAPrep />} />
             <Route path="system-design" element={<SystemDesignBoard />} />
+
+            {/* Settings */}
+            <Route path="settings" element={<Settings />} />
 
           </Route>
 
