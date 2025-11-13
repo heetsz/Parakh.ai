@@ -9,7 +9,6 @@ import gamificationRoutes from "./routes/gamification-route.js";
 import interviewRoutes from "./routes/interview-route.js";
 import postRouter from "./routes/post-route.js";
 
-
 dotenv.config();
 const app = express();
 
