@@ -57,13 +57,13 @@ export function AppSidebar(props) {
     user: {
       name: profile.name,
       email: profile.email,
-      avatar: `https://avatar.iran.liara.run/username?username=${profile.name}&background=0A74DA&color=FFFFFF&length=2`,
+      avatar: profile.image || `https://avatar.iran.liara.run/username?username=${profile.name}&background=0A74DA&color=FFFFFF&length=2`,
     },
     teams: [
       {
         name: "Parakh.ai",
         logo: "/logo.png",
-        plan: "Enterprise",
+        plan: `"Assess. Improve. Ace"`
       },
     ],
     navMain: [
@@ -85,17 +85,21 @@ export function AppSidebar(props) {
   }
 
   return (
-    <Sidebar collapsible="icon" {...props} className="bg-[#1e293b] border-r border-[#334155]">
-      <SidebarHeader className="bg-[#1e293b]">
+    <Sidebar collapsible="icon" {...props} className="bg-sidebar border-sidebar-border">
+      <SidebarHeader className="bg-sidebar border-b border-sidebar-border">
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent className="bg-[#1e293b]">
+      <SidebarContent className="bg-sidebar">
         <NavMain items={data.navMain} />
         {/* Bottom Settings button aligned with other menu items */}
         <SidebarGroup className="mt-auto">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip="Settings">
+              <SidebarMenuButton 
+                asChild 
+                tooltip="Settings"
+                className="text-sidebar-foreground border border-gray-700/50 bg-gray-800/40 hover:bg-[#DFFF00] hover:text-black hover:border-[#DFFF00]/50 transition-all duration-200 font-medium text-sm rounded-md"
+              >
                 <a href="/dashboard/settings">
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
@@ -105,10 +109,10 @@ export function AppSidebar(props) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="bg-[#1e293b] border-t border-[#334155]">
+      <SidebarFooter className="bg-sidebar border-t border-sidebar-border">
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail className="bg-transparent" />
+      <SidebarRail className="bg-sidebar-border" />
     </Sidebar>
   )
 }

@@ -58,56 +58,53 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
+                  {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium text-sidebar-foreground">{user.name}</span>
+                <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/70" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-sidebar border-sidebar-border shadow-xl"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}>
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm bg-sidebar">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium text-sidebar-foreground">{user.name}</span>
+                  <span className="truncate text-xs text-sidebar-foreground/70">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              {/* <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem> */}
-              <DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-sidebar-border" />
+            <DropdownMenuGroup className="bg-sidebar">
+              <DropdownMenuItem className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
                 <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="mr-2" />
-                Log Out
-              </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-sidebar-border" />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="text-sidebar-foreground hover:bg-red-900/20 hover:text-red-400 transition-all duration-200 cursor-pointer"
+            >
+              <LogOut className="mr-2" />
+              Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
