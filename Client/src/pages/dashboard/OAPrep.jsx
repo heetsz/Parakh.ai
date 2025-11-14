@@ -43,6 +43,7 @@ const clearSession = () => {
 export default function OAPrep() {
   const [step, setStep] = useState(() => loadFromSession('step', 'setup'));
   const [loading, setLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   // Setup form state
@@ -96,6 +97,14 @@ export default function OAPrep() {
   useEffect(() => {
     saveToSession('results', results);
   }, [results]);
+
+  // Clear initial load after session restoration
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoad(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Timer effect
   useEffect(() => {
@@ -329,6 +338,15 @@ export default function OAPrep() {
       </div>
     );
   };
+
+  // Show loading state during initial load
+  if (initialLoad) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <p className="text-center text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
 
   // Setup Step
   if (step === "setup") {

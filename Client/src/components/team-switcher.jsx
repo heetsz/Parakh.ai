@@ -37,11 +37,11 @@ export function TeamSwitcher({
         <SidebarMenuItem>
           <SidebarMenuButton
             size="lg"
-            className="cursor-default data-[state=open]:bg-transparent data-[state=open]:text-inherit"
+            className="cursor-default data-[state=open]:bg-transparent data-[state=open]:text-inherit hover:bg-transparent hover:text-inherit active:bg-transparent focus:bg-transparent"
             tabIndex={-1}
           >
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg p-1">
-              <img src="/logo.png" alt="Parakh.ai" className="size-full object-contain filter brightness-0" />
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-6 items-center justify-center rounded-lg p-1 transition-transform duration-200 hover:scale-110">
+              <img src="/web.png" alt="Parakh.ai" className="size-full object-contain filter brightness-0" />
             </div>
 
             <div className="grid flex-1 text-left text-sm leading-tight">

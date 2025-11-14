@@ -36,6 +36,7 @@ const Interviews = () => {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -66,24 +67,31 @@ const Interviews = () => {
 
   const fetchInterviews = async () => {
     setLoading(true);
+    const minLoadTime = new Promise(resolve => setTimeout(resolve, 100));
+    
     try {
       const res = await axios.get(`${base_url}/interviews`, { withCredentials: true });
       const list = res.data || [];
+      
+      await minLoadTime;
       setInterviews(list);
       setError(null);
       // Precompute images for cards
       // computeImages(list);
     } catch (err) {
       console.error("Failed to fetch interviews:", err?.response?.data || err);
+      await minLoadTime;
       setError("Failed to load interviews. Please login.");
       setInterviews([]);
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   };
 
   useEffect(() => {
     fetchInterviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (e) => {
@@ -180,10 +188,10 @@ const Interviews = () => {
         )}
       </div>
 
-      {loading && <p className="text-center text-muted-foreground">Loading interviews...</p>}
+      {(loading || initialLoad) && <p className="text-center text-muted-foreground">Loading interviews...</p>}
       {error && <p className="text-center text-destructive">{error}</p>}
 
-      {!loading && !error && interviews.length === 0 && (
+      {!loading && !initialLoad && !error && interviews.length === 0 && (
         <div className="max-w-3xl mx-auto">
           <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-md shadow-sm p-8 text-center">
             <div className="flex justify-center mb-4">

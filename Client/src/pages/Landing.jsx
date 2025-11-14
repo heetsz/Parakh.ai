@@ -82,9 +82,7 @@ const Landing = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {/* <h2 className="text-2xl font-bold bg-linear-to-r from-[#DFFF00] to-white bg-clip-text text-transparent">
-                Parakh.ai
-              </h2> */}
+              <img src="/mainlogo.png" alt="Parakh.ai" className="h-16 mt-2 w-auto object-contain" />
             </div>
             <div className="flex items-center gap-4">
               {isAuthenticated ? (

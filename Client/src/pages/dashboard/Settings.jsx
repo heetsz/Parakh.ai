@@ -13,6 +13,7 @@ export default function Settings() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,50 +27,68 @@ export default function Settings() {
 
   useEffect(() => {
     const init = async () => {
+      // Add a small delay to prevent flash
+      const minLoadTime = new Promise(resolve => setTimeout(resolve, 100));
+      
       try {
-        // fetch profile
-        const me = await axios.get(`${base_url}/me`, { withCredentials: true });
-  setUser(me.data);
-  setName(me.data?.name || "");
-        setEmail(me.data?.email || "");
-        setAvatar(me.data?.image || "");
-        setSelectedModel({ name: me.data?.aiModelName || "", image: me.data?.aiModelImage || "" });
+        // fetch profile and models in parallel
+        const [meRes, modelsRes] = await Promise.all([
+          axios.get(`${base_url}/me`, { withCredentials: true }),
+          axios.get(`${base_url}/settings/ai-models`, { withCredentials: true }).catch(() => null)
+        ]);
+        
+        const userData = meRes.data;
+        
+        // Set models data
+        if (modelsRes?.data) {
+          setModels(modelsRes.data);
+        } else {
+          // fallback static list
+          const base = "https://avatar.iran.liara.run/public";
+          setModels([
+            { name: "Arista-PlayAI", image: `${base}/23` },
+            { name: "Atlas-PlayAI", image: `${base}/24` },
+            { name: "Basil-PlayAI", image: `${base}/25` },
+            { name: "Briggs-PlayAI", image: `${base}/26` },
+            { name: "Calum-PlayAI", image: `${base}/27` },
+            { name: "Celeste-PlayAI", image: `${base}/28` },
+            { name: "Cheyenne-PlayAI", image: `${base}/29` },
+            { name: "Chip-PlayAI", image: `${base}/30` },
+            { name: "Cillian-PlayAI", image: `${base}/31` },
+            { name: "Deedee-PlayAI", image: `${base}/32` },
+            { name: "Fritz-PlayAI", image: `${base}/33` },
+            { name: "Gail-PlayAI", image: `${base}/34` },
+            { name: "Indigo-PlayAI", image: `${base}/35` },
+            { name: "Mamaw-PlayAI", image: `${base}/36` },
+            { name: "Mason-PlayAI", image: `${base}/37` },
+            { name: "Mikail-PlayAI", image: `${base}/38` },
+            { name: "Mitch-PlayAI", image: `${base}/39` },
+            { name: "Quinn-PlayAI", image: `${base}/40` },
+            { name: "Thunder-PlayAI", image: `${base}/41` },
+          ]);
+        }
+        
+        // Wait for minimum load time before updating state
+        await minLoadTime;
+        
+        // Set all user data at once to avoid multiple re-renders
+        setUser(userData);
+        setName(userData?.name || "");
+        setEmail(userData?.email || "");
+        setAvatar(userData?.image || "");
+        setSelectedModel({ name: userData?.aiModelName || "", image: userData?.aiModelImage || "" });
+        
       } catch (e) {
         error("Failed to load profile");
-      }
-      try {
-        const res = await axios.get(`${base_url}/settings/ai-models`, { withCredentials: true });
-        setModels(res.data || []);
-      } catch (e) {
-        // fallback static list
-        const base = "https://avatar.iran.liara.run/public";
-        setModels([
-          { name: "Arista-PlayAI", image: `${base}/23` },
-          { name: "Atlas-PlayAI", image: `${base}/24` },
-          { name: "Basil-PlayAI", image: `${base}/25` },
-          { name: "Briggs-PlayAI", image: `${base}/26` },
-          { name: "Calum-PlayAI", image: `${base}/27` },
-          { name: "Celeste-PlayAI", image: `${base}/28` },
-          { name: "Cheyenne-PlayAI", image: `${base}/29` },
-          { name: "Chip-PlayAI", image: `${base}/30` },
-          { name: "Cillian-PlayAI", image: `${base}/31` },
-          { name: "Deedee-PlayAI", image: `${base}/32` },
-          { name: "Fritz-PlayAI", image: `${base}/33` },
-          { name: "Gail-PlayAI", image: `${base}/34` },
-          { name: "Indigo-PlayAI", image: `${base}/35` },
-          { name: "Mamaw-PlayAI", image: `${base}/36` },
-          { name: "Mason-PlayAI", image: `${base}/37` },
-          { name: "Mikail-PlayAI", image: `${base}/38` },
-          { name: "Mitch-PlayAI", image: `${base}/39` },
-          { name: "Quinn-PlayAI", image: `${base}/40` },
-          { name: "Thunder-PlayAI", image: `${base}/41` },
-        ]);
+        await minLoadTime;
       } finally {
         setLoading(false);
+        setInitialLoad(false);
       }
     };
     init();
-  }, [base_url, error]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onPickFile = () => fileRef.current?.click();
   const onFileChange = async (e) => {
@@ -144,8 +163,19 @@ export default function Settings() {
     }
   };
 
+  if (loading || initialLoad) {
+    return (
+      <div className="h-full w-full px-6 py-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="h-full w-full px-6 py-6">
+    <div className="h-full w-full px-6 py-6" style={{ opacity: initialLoad ? 0 : 1, transition: 'opacity 0.2s' }}>
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>

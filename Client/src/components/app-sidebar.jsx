@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import axios from "axios"
 
 export function AppSidebar(props) {
@@ -51,7 +52,15 @@ export function AppSidebar(props) {
     fetchProtectedData()
   }, [])
 
-  if (!profile) return null
+  if (!profile) {
+    return (
+      <Sidebar collapsible="icon" {...props} className="bg-sidebar border-sidebar-border">
+        <SidebarContent className="bg-sidebar flex items-center justify-center">
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </SidebarContent>
+      </Sidebar>
+    )
+  }
 
   const data = {
     user: {
@@ -100,10 +109,10 @@ export function AppSidebar(props) {
                 tooltip="Settings"
                 className="text-sidebar-foreground border border-gray-700/50 bg-gray-800/40 hover:bg-[#DFFF00] hover:text-black hover:border-[#DFFF00]/50 transition-all duration-200 font-medium text-sm rounded-md"
               >
-                <a href="/dashboard/settings">
+                <Link to="/dashboard/settings">
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
