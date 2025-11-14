@@ -76,10 +76,9 @@ const Landing = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <GalleryVerticalEnd className="h-6 w-6 text-white" />
-              <span className="text-xl font-bold text-white">Parakh.ai</span>
+              <img src="/logo.png" alt="Parakh.ai" className="h-24     w-auto" />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-15">
               {isAuthenticated ? (
                 <>
                   <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate('/dashboard/interviews')}>

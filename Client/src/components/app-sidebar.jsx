@@ -62,7 +62,7 @@ export function AppSidebar(props) {
     teams: [
       {
         name: "Parakh.ai",
-        logo: GalleryVerticalEnd,
+        logo: "/logo.png",
         plan: "Enterprise",
       },
     ],
