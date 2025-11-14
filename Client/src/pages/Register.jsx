@@ -50,7 +50,14 @@ export default function RegisterPage() {
       return (
             <div className="flex justify-center items-center h-screen bg-gray-100">
                   <Card className="w-full max-w-sm">
-                        <CardHeader className="space-y-1">
+                        <CardHeader className="space-y-3">
+                              <div className="flex justify-center">
+                                    <div className="p-3 rounded-lg" style={{background: 'linear-gradient(135deg, #a855f7, #ec4899)', padding: '2px'}}>
+                                          <div className="bg-transparent rounded-lg p-2">
+                                                <img src="/logo.png" alt="Parakh.ai" className="h-16 w-auto" />
+                                          </div>
+                                    </div>
+                              </div>
                               <CardTitle className="text-2xl font-bold text-center">Register</CardTitle>
                               <CardDescription className="text-center">
                                     Enter your details to create an account

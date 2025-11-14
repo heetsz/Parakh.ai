@@ -70,7 +70,7 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ fontFamily: "'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-50 bg-transparent">
         <div className="container mx-auto px-6 py-4">
@@ -101,7 +101,7 @@ const Landing = () => {
                   <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate('/login')}>
                     Log In
                   </Button>
-                  <Button className="btn-modern bg-white text-blue-600 hover:bg-white/90" onClick={() => navigate('/register')}>
+                  <Button className="btn-modern-purple" onClick={() => navigate('/register')}>
                     Sign Up
                   </Button>
                 </>
@@ -128,14 +128,14 @@ const Landing = () => {
               {isAuthenticated ? (
                 <>Welcome back, {user?.name?.split(' ')[0]}! <span className="block mt-1">Keep Practicing</span></>
               ) : (
-                <>20% More Revenue <span className="block mt-2">Per Campaign.</span> <span className="block mt-2">Guaranteed.</span></>
+                <>Master Your Interview Skills <span className="block mt-1">With AI</span></>
               )}
             </h1>
             <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-xl">
               {isAuthenticated ? (
                 "Continue your journey to ace your next technical interview with personalized AI feedback and practice."
               ) : (
-                "Incremental. It's why we exist. See why the most innovative brands in ecommerce add text to buy, shopper-specific recommendations and two-way texting on top of conventional SMS marketing. You won't go back."
+                "Ace your next technical interview with AI-powered mock interviews, real-time feedback, and personalized practice sessions designed to boost your confidence."
               )}
             </p>
             <div className="flex items-center gap-3 pt-4">
@@ -150,19 +150,15 @@ const Landing = () => {
                   </Button>
                 </>
               ) : (
-                <div className="flex items-center gap-3 w-full max-w-2xl">
-                  <div className="flex-1 relative">
-                    <input
-                      type="text"
-                      placeholder="Enter your brand's URL"
-                      className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    />
-                  </div>
-                  <Button size="lg" className="btn-modern whitespace-nowrap" onClick={() => navigate('/register')}>
-                    Test our AI
+                <>
+                  <Button size="lg" className="btn-modern-purple" onClick={() => navigate('/register')}>
+                    Start Practicing
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                </div>
+                  <Button size="lg" className="btn-modern-hollow" onClick={() => navigate('/login')}>
+                    Sign In
+                  </Button>
+                </>
               )}
             </div>
           </div>
