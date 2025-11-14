@@ -335,8 +335,8 @@ export default function OAPrep() {
     return (
       <div className="p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">OA Preparation</h1>
-          <p className="text-muted-foreground mt-1">Generate AI-powered quiz questions tailored to your interview prep needs</p>
+          <h1 className="text-4xl ml-5 font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">OA Preparation</h1>
+          <p className="text-muted-foreground ml-5 mt-1">Generate AI-powered quiz questions tailored to your interview preparation needs</p>
         </div>
 
         <Card className="border-0 shadow-none">
@@ -471,12 +471,12 @@ export default function OAPrep() {
 
             <Separator />
 
-            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-white dark:bg-slate-800/50 rounded-lg p-4 relative" style={{ border: '2px solid transparent', backgroundImage: 'linear-gradient(white, white), linear-gradient(to right, #a855f7, #ec4899, #a855f7)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box' }}>
               <div className="flex gap-3">
-                <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                 <div className="text-sm space-y-1">
-                  <p className="font-medium text-blue-900 dark:text-blue-100">Quiz Guidelines</p>
-                  <ul className="text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
+                  <p className="font-semibold dark:text-purple-300" style={{ color: '#000000' }}>Quiz Guidelines</p>
+                  <ul className="dark:text-purple-200 space-y-1 list-disc list-inside font-medium" style={{ color: '#000000' }}>
                     <li>Time duration is calculated by AI based on question complexity</li>
                     <li>Questions are generated fresh each time</li>
                     <li>Review detailed explanations after submission</li>
@@ -509,17 +509,17 @@ export default function OAPrep() {
 
         {/* Loading Progress Bar */}
         {loading && (
-          <Card className="mt-6 border-0 shadow-none bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+          <Card className="mt-6 bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 shadow-xl">
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Brain className="h-6 w-6 text-green-600 dark:text-green-400 animate-pulse" />
+                    <img src="/ai-loading.gif" alt="AI Loading" className="h-16 w-16 object-contain" />
                     <div>
-                      <p className="font-semibold text-green-900 dark:text-green-100">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">
                         Generating Your Quiz...
                       </p>
-                      <p className="text-sm text-green-700 dark:text-green-300">
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
                         {formData.numberOfQuestions <= 5 && "Estimated time: 15-20 seconds"}
                         {formData.numberOfQuestions > 5 && formData.numberOfQuestions <= 10 && "Estimated time: 20-30 seconds"}
                         {formData.numberOfQuestions > 10 && formData.numberOfQuestions <= 20 && "Estimated time: 30-45 seconds"}
@@ -528,26 +528,26 @@ export default function OAPrep() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                       {Math.round(loadingProgress)}%
                     </p>
                   </div>
                 </div>
                 
                 {/* Progress Bar */}
-                <div className="relative h-3 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden shadow-inner">
+                <div className="relative h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
                   <div 
-                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 transition-all duration-300 ease-out rounded-full wave-glow shadow-lg"
+                    className="absolute top-0 left-0 h-full bg-linear-to-r from-purple-500 to-blue-500 dark:from-purple-600 dark:to-blue-600 transition-all duration-300 ease-out rounded-full wave-glow shadow-lg"
                     style={{ width: `${loadingProgress}%` }}
                   >
                     {/* Traveling white wave glow */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-wave-travel" />
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent animate-wave-travel" />
                     {/* Shimmer overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
                   </div>
                 </div>
                 
-                <p className="text-xs text-green-600 dark:text-green-400 text-center">
+                <p className="text-xs text-slate-600 dark:text-slate-400 text-center">
                   AI is analyzing your requirements and generating customized questions...
                 </p>
               </div>
@@ -690,10 +690,10 @@ export default function OAPrep() {
 
         {/* Submit Warning */}
         {answeredCount < quiz.questions.length && (
-          <div className="mt-6 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="mt-6 bg-orange-100  border-2 border-orange-400 dark:border-orange-600 rounded-lg p-4">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0" />
+              <p className="text-sm font-medium text-black ">
                 You have {quiz.questions.length - answeredCount} unanswered question(s). 
                 Make sure to answer all questions before submitting.
               </p>
@@ -704,13 +704,12 @@ export default function OAPrep() {
         {/* Quit Quiz Button */}
         <div className="mt-6 flex justify-center">
           <Button
-            variant="ghost"
             onClick={() => {
               if (window.confirm("Are you sure you want to quit? Your progress will be lost.")) {
                 resetQuiz();
               }
             }}
-            className="text-muted-foreground hover:text-destructive"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
             Quit Quiz
           </Button>
