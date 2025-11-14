@@ -85,11 +85,11 @@ export function AppSidebar(props) {
   }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="icon" {...props} className="bg-[#1e293b] border-r border-[#334155]">
+      <SidebarHeader className="bg-[#1e293b]">
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-[#1e293b]">
         <NavMain items={data.navMain} />
         {/* Bottom Settings button aligned with other menu items */}
         <SidebarGroup className="mt-auto">
@@ -105,10 +105,10 @@ export function AppSidebar(props) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="bg-[#1e293b] border-t border-[#334155]">
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
+      <SidebarRail className="bg-[#334155]" />
     </Sidebar>
   )
 }
