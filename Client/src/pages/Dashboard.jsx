@@ -15,20 +15,37 @@ import {
       SidebarProvider,
       SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
+// Map route segments to readable labels
+const segmentLabels = {
+      dashboard: "Dashboard",
+      interviews: "Interviews",
+      progress: "Progress",
+      community: "Community",
+      gamification: "Gamification",
+      settings: "Settings",
+      "create-interview": "Create Interview",
+      "interview-live": "Live Interview",
+      "study-material-leetcode": "LeetCode Study",
+      "study-material-strivers": "Striver's Study",
+};
 
 function getBreadcrumbs(pathname) {
       // Split path and filter empty segments
       const segments = pathname.split("/").filter(Boolean);
-      // Build breadcrumb data
+      
+      // Build breadcrumb data with proper labels
       return segments.map((segment, idx) => {
             const url = "/" + segments.slice(0, idx + 1).join("/");
-            return { name: segment.charAt(0).toUpperCase() + segment.slice(1), url };
+            const name = segmentLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
+            return { name, url };
       });
 }
 
 export default function Page() {
       const location = useLocation();
+      const navigate = useNavigate();
       const breadcrumbs = getBreadcrumbs(location.pathname);
 
       return (
@@ -44,19 +61,17 @@ export default function Page() {
                                     />
                                     <Breadcrumb>
                                           <BreadcrumbList>
-                                                <BreadcrumbItem>
-                                                      <BreadcrumbLink as={Link} to="/">
-                                                            Home
-                                                      </BreadcrumbLink>
-                                                </BreadcrumbItem>
                                                 {breadcrumbs.map((crumb, idx) => (
                                                       <React.Fragment key={crumb.url}>
-                                                            <BreadcrumbSeparator />
+                                                            {idx > 0 && <BreadcrumbSeparator />}
                                                             <BreadcrumbItem>
                                                                   {idx === breadcrumbs.length - 1 ? (
                                                                         <BreadcrumbPage>{crumb.name}</BreadcrumbPage>
                                                                   ) : (
-                                                                        <BreadcrumbLink as={Link} to={crumb.url}>
+                                                                        <BreadcrumbLink 
+                                                                              onClick={() => navigate(crumb.url)}
+                                                                              className="cursor-pointer"
+                                                                        >
                                                                               {crumb.name}
                                                                         </BreadcrumbLink>
                                                                   )}
