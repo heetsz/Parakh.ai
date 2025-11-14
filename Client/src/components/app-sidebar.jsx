@@ -108,7 +108,7 @@ export function AppSidebar(props) {
       <SidebarFooter className="bg-[#1e293b] border-t border-[#334155]">
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail className="bg-[#334155]" />
+      <SidebarRail className="bg-transparent" />
     </Sidebar>
   )
 }

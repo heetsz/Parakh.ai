@@ -101,7 +101,7 @@ const Landing = () => {
                   <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate('/login')}>
                     Log In
                   </Button>
-                  <Button className="btn-modern-purple" onClick={() => navigate('/register')}>
+                  <Button className="bg-white text-purple-600 hover:bg-white/90 rounded-full px-8 py-2 font-medium" onClick={() => navigate('/register')}>
                     Sign Up
                   </Button>
                 </>
