@@ -51,26 +51,28 @@ export default function Page() {
       return (
             <SidebarProvider>
                   <AppSidebar />
-                  <SidebarInset>
-                        <header className="flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-11">
-                              <div className="flex items-center gap-2 px-4">
-                                    <SidebarTrigger className="-ml-1" />
+                  <SidebarInset className="bg-black">
+                        <header className="flex h-16 shrink-0 items-center gap-2 bg-black border-b border-gray-800 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-11">
+                              <div className="flex items-center gap-2 px-6">
+                                    <SidebarTrigger className="-ml-1 text-white hover:bg-gray-800 hover:text-white" />
                                     <Separator
                                           orientation="vertical"
-                                          className="mr-2 data-[orientation=vertical]:h-4"
+                                          className="mr-3 data-[orientation=vertical]:h-5 bg-gray-700"
                                     />
                                     <Breadcrumb>
                                           <BreadcrumbList>
                                                 {breadcrumbs.map((crumb, idx) => (
                                                       <React.Fragment key={crumb.url}>
-                                                            {idx > 0 && <BreadcrumbSeparator />}
+                                                            {idx > 0 && <BreadcrumbSeparator className="text-gray-500" />}
                                                             <BreadcrumbItem>
                                                                   {idx === breadcrumbs.length - 1 ? (
-                                                                        <BreadcrumbPage>{crumb.name}</BreadcrumbPage>
+                                                                        <BreadcrumbPage className="text-white font-semibold text-lg">
+                                                                              {crumb.name}
+                                                                        </BreadcrumbPage>
                                                                   ) : (
                                                                         <BreadcrumbLink 
                                                                               onClick={() => navigate(crumb.url)}
-                                                                              className="cursor-pointer"
+                                                                              className="cursor-pointer text-gray-400 hover:text-white font-medium text-base transition-colors duration-200"
                                                                         >
                                                                               {crumb.name}
                                                                         </BreadcrumbLink>
@@ -82,7 +84,9 @@ export default function Page() {
                                     </Breadcrumb>
                               </div>
                         </header>
-                        <Outlet />
+                        <div className="bg-black min-h-screen">
+                              <Outlet />
+                        </div>
                   </SidebarInset>
             </SidebarProvider>
       );
