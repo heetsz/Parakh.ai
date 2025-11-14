@@ -51,7 +51,7 @@ export function NavMain({ items }) {
       {/* Study Material group: dropdowns */}
       {dropdowns.length > 0 && (
         <SidebarGroup>
-          <SidebarGroupLabel>Study Material</SidebarGroupLabel>
+          <SidebarGroupLabel>Progress</SidebarGroupLabel>
           <SidebarMenu className="gap-1.5">
             {dropdowns.map((item) => (
               <Collapsible
