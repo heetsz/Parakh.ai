@@ -52,6 +52,7 @@ export default function InterviewProgress() {
       const res = await axios.get(`${base_url}/interviews/progress`, {
         withCredentials: true,
       });
+      console.log("📊 Progress Analytics Response:", res.data);
       setAnalytics(res.data);
       setError(null);
     } catch (err) {
@@ -113,32 +114,38 @@ export default function InterviewProgress() {
   }
 
   // Prepare data for category radar chart
-  const radarData = Object.entries(analytics.categoryScores || {}).map(([key, value]) => ({
-    category: key.replace(/([A-Z])/g, " $1").trim(),
-    score: value,
-    fullMark: 100,
-  }));
+  const radarData = analytics.categoryScores && typeof analytics.categoryScores === 'object'
+    ? Object.entries(analytics.categoryScores).map(([key, value]) => ({
+        category: key.replace(/([A-Z])/g, " $1").trim(),
+        score: value || 0,
+        fullMark: 100,
+      }))
+    : [];
 
   // Format timeline data for area chart
-  const timelineData = (analytics.timeline || []).map((item) => ({
-    date: new Date(item.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    }),
-    score: item.overallScore,
-    role: item.role,
-  }));
+  const timelineData = Array.isArray(analytics.timeline)
+    ? analytics.timeline.map((item) => ({
+        date: new Date(item.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        score: item.overallScore || 0,
+        role: item.role || "N/A",
+      }))
+    : [];
 
   // Category data for bar chart
-  const categoryBarData = Object.entries(analytics.categoryScores || {}).map(([key, value]) => ({
-    category: key
-      .replace(/([A-Z])/g, " $1")
-      .trim()
-      .split(" ")
-      .map((w) => w[0].toUpperCase() + w.slice(1))
-      .join(" "),
-    score: value,
-  }));
+  const categoryBarData = analytics.categoryScores && typeof analytics.categoryScores === 'object'
+    ? Object.entries(analytics.categoryScores).map(([key, value]) => ({
+        category: key
+          .replace(/([A-Z])/g, " $1")
+          .trim()
+          .split(" ")
+          .map((w) => w[0].toUpperCase() + w.slice(1))
+          .join(" "),
+        score: value || 0,
+      }))
+    : [];
 
   return (
     <div className="space-y-6">
@@ -319,7 +326,7 @@ export default function InterviewProgress() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {analytics.strengths.map((strength, index) => (
+                  {Array.isArray(analytics.strengths) && analytics.strengths.map((strength, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg"
@@ -330,7 +337,7 @@ export default function InterviewProgress() {
                       </Badge>
                     </div>
                   ))}
-                  {analytics.strengths.length === 0 && (
+                  {(!Array.isArray(analytics.strengths) || analytics.strengths.length === 0) && (
                     <p className="text-sm text-muted-foreground">
                       Complete more interviews to identify patterns
                     </p>
@@ -348,7 +355,7 @@ export default function InterviewProgress() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {analytics.weaknesses.map((weakness, index) => (
+                  {Array.isArray(analytics.weaknesses) && analytics.weaknesses.map((weakness, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg"
@@ -359,7 +366,7 @@ export default function InterviewProgress() {
                       </Badge>
                     </div>
                   ))}
-                  {analytics.weaknesses.length === 0 && (
+                  {(!Array.isArray(analytics.weaknesses) || analytics.weaknesses.length === 0) && (
                     <p className="text-sm text-muted-foreground">
                       Great! No consistent weaknesses identified yet.
                     </p>
@@ -382,7 +389,7 @@ export default function InterviewProgress() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {analytics.timeline.map((interview, index) => (
+                {Array.isArray(analytics.timeline) && analytics.timeline.map((interview, index) => (
                   <div
                     key={interview.id}
                     className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent transition-colors"
@@ -430,7 +437,7 @@ export default function InterviewProgress() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-3">
-                {analytics.nextFocusAreas.map((area, index) => (
+                {Array.isArray(analytics.nextFocusAreas) && analytics.nextFocusAreas.map((area, index) => (
                   <div
                     key={index}
                     className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border-l-4 border-purple-500"
@@ -446,7 +453,7 @@ export default function InterviewProgress() {
                     </div>
                   </div>
                 ))}
-                {analytics.nextFocusAreas.length === 0 && (
+                {(!Array.isArray(analytics.nextFocusAreas) || analytics.nextFocusAreas.length === 0) && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Sparkles className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>Complete more interviews to get personalized recommendations</p>
