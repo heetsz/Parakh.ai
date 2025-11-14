@@ -22,6 +22,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import Landing from './pages/Landing';
 
 import { NotificationProvider } from '@/components/ui/notification';
+import { Spinner } from '@/components/ui/spinner';
 
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
 import OAPrep from './pages/dashboard/OAPrep'; // kept from quiz branch
@@ -51,7 +52,7 @@ const AnimatedRoutes = ({ token }) => {
 
         <Route
           path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/" replace />}
+          element={token ? <Dashboard /> : <Navigate to="/login" replace />}
         >
           {/* Default route */}
           <Route index element={<Navigate to="interviews" replace />} />
@@ -82,6 +83,7 @@ const AnimatedRoutes = ({ token }) => {
 
 const App = () => {
   const [token, setToken] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const base_url = import.meta.env.VITE_BACKEND_URL;
@@ -94,6 +96,8 @@ const App = () => {
         setToken(res.status === 200);
       } catch {
         setToken(false);
+      } finally {
+        setAuthChecked(true);
       }
     };
 
@@ -106,11 +110,17 @@ const App = () => {
 
   return (
     <NotificationProvider>
-      <BrowserRouter>
-        <div style={{ backgroundColor: '#000000', minHeight: '100vh' }}>
-          <AnimatedRoutes token={token} />
-        </div>
-      </BrowserRouter>
+      <div style={{ backgroundColor: '#000000', minHeight: '100vh' }}>
+        {!authChecked ? (
+          <div className="flex h-screen items-center justify-center">
+            <Spinner className="size-6 text-white" />
+          </div>
+        ) : (
+          <BrowserRouter>
+            <AnimatedRoutes token={token} />
+          </BrowserRouter>
+        )}
+      </div>
     </NotificationProvider>
   );
 };

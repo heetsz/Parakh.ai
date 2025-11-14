@@ -64,15 +64,14 @@ export default function RegisterPage() {
                   transition={{ duration: 0.15, ease: "easeOut" }}
                   className="flex justify-center items-center h-screen bg-black"
             >
-                  <Card
-                        className="
-          w-full max-w-sm
-          backdrop-blur-md
-          bg-white/10
-          border border-white/20
-          shadow-[0_0_20px_rgba(255,255,255,0.05)]
-        "
-                  >
+                                                      <Card
+                                                                        className="
+                              w-full max-w-sm
+                              bg-transparent
+                              border border-white/10
+                              shadow-none
+                        "
+                                                      >
                         <CardHeader className="space-y-1 text-center">
                               <CardTitle className="text-3xl font-bold text-white drop-shadow-lg">
                                     Register
