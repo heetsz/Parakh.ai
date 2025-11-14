@@ -34,9 +34,9 @@
   --sidebar-accent-foreground: oklch(0.2435 0 0);
   --sidebar-border: oklch(0.9037 0 0);
   --sidebar-ring: oklch(0.8348 0.1302 160.9080);
-  --font-sans: Outfit, sans-serif;
+  --font-sans: 'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: monospace;
+  --font-mono: 'JetBrains Mono', monospace;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 1px;
@@ -210,4 +210,138 @@
 
 body {
   letter-spacing: var(--tracking-normal);
+}
+
+/* Dark theme with video background */
+.hero-with-video {
+  background: #000000;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.video-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 48%;
+  overflow: hidden;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.video-fade-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #000000 0%, #000000 15%, rgba(0, 0, 0, 0.8) 40%, transparent 65%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-content-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+/* Dark sections */
+.dark-section {
+  background: #000000;
+  color: white;
+}
+
+.dark-section-alt {
+  background: #0a0a0a;
+  color: white;
+}
+
+/* Rectangular neon buttons */
+.btn-modern {
+  border-radius: 0.375rem;
+  padding: 0.875rem 2.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #00ff87 0%, #60efff 100%);
+  color: #000000;
+  border: none;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 255, 135, 0.6), 0 0 60px rgba(96, 239, 255, 0.4);
+  background: linear-gradient(135deg, #60efff 0%, #00ff87 100%);
+}
+
+.btn-modern-purple {
+  border-radius: 0.375rem;
+  padding: 0.875rem 2.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-modern-purple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.6), 0 0 60px rgba(236, 72, 153, 0.4);
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+}
+
+.btn-modern-hollow {
+  border-radius: 0.375rem;
+  padding: 0.875rem 2.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.btn-modern-hollow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* Feature cards with dark theme */
+.feature-card-dark {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.feature-card-dark:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsive video */
+@media (max-width: 768px) {
+  .video-container {
+    width: 100%;
+    height: 40%;
+    top: auto;
+    bottom: 0;
+  }
+  
+  .video-fade-overlay {
+    background: linear-gradient(to bottom, #0a0e27 0%, #0a0e27 40%, transparent 80%, transparent 100%);
+  }
 }
