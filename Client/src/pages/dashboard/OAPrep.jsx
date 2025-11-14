@@ -12,28 +12,90 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
 
+// Helper functions to persist state in sessionStorage
+const saveToSession = (key, value) => {
+  try {
+    sessionStorage.setItem(`oa_prep_${key}`, JSON.stringify(value));
+  } catch (error) {
+    console.error("Error saving to session:", error);
+  }
+};
+
+const loadFromSession = (key, defaultValue) => {
+  try {
+    const item = sessionStorage.getItem(`oa_prep_${key}`);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.error("Error loading from session:", error);
+    return defaultValue;
+  }
+};
+
+const clearSession = () => {
+  try {
+    const keys = ['step', 'formData', 'quiz', 'currentQuestion', 'selectedAnswers', 'timeRemaining', 'quizStartTime', 'results'];
+    keys.forEach(key => sessionStorage.removeItem(`oa_prep_${key}`));
+  } catch (error) {
+    console.error("Error clearing session:", error);
+  }
+};
+
 export default function OAPrep() {
-  const [step, setStep] = useState("setup"); // setup, quiz, results
+  const [step, setStep] = useState(() => loadFromSession('step', 'setup'));
   const [loading, setLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   
   // Setup form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => loadFromSession('formData', {
     jobDescription: "",
     quizType: "",
     numberOfQuestions: 10,
     concepts: "",
     difficulty: "easy-to-medium"
-  });
+  }));
   
   // Quiz state
-  const [quiz, setQuiz] = useState(null);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [timeRemaining, setTimeRemaining] = useState(null);
-  const [quizStartTime, setQuizStartTime] = useState(null);
+  const [quiz, setQuiz] = useState(() => loadFromSession('quiz', null));
+  const [currentQuestion, setCurrentQuestion] = useState(() => loadFromSession('currentQuestion', 0));
+  const [selectedAnswers, setSelectedAnswers] = useState(() => loadFromSession('selectedAnswers', {}));
+  const [timeRemaining, setTimeRemaining] = useState(() => loadFromSession('timeRemaining', null));
+  const [quizStartTime, setQuizStartTime] = useState(() => loadFromSession('quizStartTime', null));
   
   // Results state
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState(() => loadFromSession('results', null));
+
+  // Persist state changes to sessionStorage
+  useEffect(() => {
+    saveToSession('step', step);
+  }, [step]);
+
+  useEffect(() => {
+    saveToSession('formData', formData);
+  }, [formData]);
+
+  useEffect(() => {
+    saveToSession('quiz', quiz);
+  }, [quiz]);
+
+  useEffect(() => {
+    saveToSession('currentQuestion', currentQuestion);
+  }, [currentQuestion]);
+
+  useEffect(() => {
+    saveToSession('selectedAnswers', selectedAnswers);
+  }, [selectedAnswers]);
+
+  useEffect(() => {
+    saveToSession('timeRemaining', timeRemaining);
+  }, [timeRemaining]);
+
+  useEffect(() => {
+    saveToSession('quizStartTime', quizStartTime);
+  }, [quizStartTime]);
+
+  useEffect(() => {
+    saveToSession('results', results);
+  }, [results]);
 
   // Timer effect
   useEffect(() => {
@@ -65,6 +127,21 @@ export default function OAPrep() {
     }
 
     setLoading(true);
+    setLoadingProgress(0);
+    
+    // Calculate estimated time based on number of questions
+    const estimatedTime = formData.numberOfQuestions <= 5 ? 17500 :
+                         formData.numberOfQuestions <= 10 ? 25000 :
+                         formData.numberOfQuestions <= 20 ? 37500 : 52500;
+    
+    // Update progress bar smoothly
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 95) return prev;
+        return prev + (100 / (estimatedTime / 100));
+      });
+    }, 100);
+    
     try {
       const response = await axios.post(
         `${API_URL}/oa/generate`,
@@ -72,16 +149,25 @@ export default function OAPrep() {
         { withCredentials: true }
       );
       
-      setQuiz(response.data.quiz);
-      setStep("quiz");
-      setQuizStartTime(Date.now());
-      // Use AI-calculated time duration from response
-      setTimeRemaining(response.data.quiz.totalTimeInSeconds || formData.numberOfQuestions * 75);
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+      
+      // Small delay to show 100% completion
+      setTimeout(() => {
+        setQuiz(response.data.quiz);
+        setStep("quiz");
+        setQuizStartTime(Date.now());
+        // Use AI-calculated time duration from response
+        setTimeRemaining(response.data.quiz.totalTimeInSeconds || formData.numberOfQuestions * 75);
+        setLoadingProgress(0);
+      }, 500);
     } catch (error) {
+      clearInterval(progressInterval);
+      setLoadingProgress(0);
       console.error("Error generating quiz:", error);
       alert(error.response?.data?.message || "Failed to generate quiz. Please try again.");
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 500);
     }
   };
 
@@ -125,6 +211,7 @@ export default function OAPrep() {
   };
 
   const resetQuiz = () => {
+    clearSession(); // Clear all persisted data
     setStep("setup");
     setQuiz(null);
     setCurrentQuestion(0);
@@ -390,6 +477,54 @@ export default function OAPrep() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Loading Progress Bar */}
+        {loading && (
+          <Card className="mt-6 border-0 shadow-none bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Brain className="h-6 w-6 text-green-600 dark:text-green-400 animate-pulse" />
+                    <div>
+                      <p className="font-semibold text-green-900 dark:text-green-100">
+                        Generating Your Quiz...
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        {formData.numberOfQuestions <= 5 && "Estimated time: 15-20 seconds"}
+                        {formData.numberOfQuestions > 5 && formData.numberOfQuestions <= 10 && "Estimated time: 20-30 seconds"}
+                        {formData.numberOfQuestions > 10 && formData.numberOfQuestions <= 20 && "Estimated time: 30-45 seconds"}
+                        {formData.numberOfQuestions > 20 && "Estimated time: 45-60 seconds"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {Math.round(loadingProgress)}%
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="relative h-3 bg-green-100 dark:bg-green-900/30 rounded-full overflow-hidden shadow-inner">
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 transition-all duration-300 ease-out rounded-full wave-glow shadow-lg"
+                    style={{ width: `${loadingProgress}%` }}
+                  >
+                    {/* Traveling white wave glow */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-wave-travel" />
+                    {/* Shimmer overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </div>
+                </div>
+                
+                <p className="text-xs text-green-600 dark:text-green-400 text-center">
+                  AI is analyzing your requirements and generating customized questions...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }

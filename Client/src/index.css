@@ -109,6 +109,45 @@
   --shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.43);
 }
 
+/* Loading animations for OA Prep */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes wave-travel {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes wave-glow {
+  0%, 100% { 
+    box-shadow: 
+      0 0 10px rgba(34, 197, 94, 0.4),
+      0 0 20px rgba(34, 197, 94, 0.2),
+      inset 0 0 10px rgba(255, 255, 255, 0.1);
+  }
+  50% { 
+    box-shadow: 
+      0 0 20px rgba(34, 197, 94, 0.6),
+      0 0 40px rgba(34, 197, 94, 0.4),
+      0 0 60px rgba(34, 197, 94, 0.2),
+      inset 0 0 15px rgba(255, 255, 255, 0.2);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-wave-travel {
+  animation: wave-travel 1.5s ease-in-out infinite;
+}
+
+.wave-glow {
+  animation: wave-glow 1.5s ease-in-out infinite;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
