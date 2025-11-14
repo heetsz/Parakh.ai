@@ -26,8 +26,8 @@ const userSchema = new Schema({
   ],
 });
 
-// Ensure an index on username for uniqueness at the database level
-userSchema.index({ username: 1 }, { unique: true });
+// Note: Indexes are automatically created by MongoDB for unique fields
+// No need to manually define them again
 
 const User = model("User", userSchema);
 export default User;
