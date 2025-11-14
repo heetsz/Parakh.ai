@@ -21,7 +21,8 @@ import {
   Legend,
   ResponsiveContainer,
   Area,
-  AreaChart
+  AreaChart,
+  ComposedChart
 } from "recharts";
 import {
   TrendingUp,
@@ -33,7 +34,9 @@ import {
   AlertCircle,
   Sparkles,
   BarChart3,
-  Activity
+  Activity,
+  Users,
+  Clock
 } from "lucide-react";
 
 export default function InterviewProgress() {
@@ -44,6 +47,7 @@ export default function InterviewProgress() {
 
   useEffect(() => {
     fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAnalytics = async () => {
@@ -148,70 +152,82 @@ export default function InterviewProgress() {
     : [];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6 max-w-[100vw] overflow-x-hidden">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Interview Performance Dashboard</h1>
+        <p className="text-muted-foreground">Track your progress and identify areas for improvement</p>
+      </div>
+
       {/* Key Metrics Cards */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-0 shadow-lg bg-linear-to-br from-blue-500 to-blue-600 text-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-white/90">
               Total Interviews
             </CardTitle>
+            <Users className="h-5 w-5 text-white/80" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-3xl font-bold">{analytics.totalInterviews}</div>
-            <p className="text-xs text-muted-foreground mt-1">Completed successfully</p>
+            <p className="text-xs text-white/70 mt-1 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Completed successfully
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">
-              Current Score
+        <Card className="border-0 shadow-lg bg-linear-to-br from-green-500 to-emerald-600 text-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-white/90">
+              Average Score
             </CardTitle>
+            <Target className="h-5 w-5 text-white/80" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-3xl font-bold">{analytics.averageScore}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Recent average</p>
+            <p className="text-xs text-white/70 mt-1">Recent performance</p>
           </CardContent>
         </Card>
 
-        <Card className={`bg-linear-to-br ${
+        <Card className={`border-0 shadow-lg text-white overflow-hidden relative ${
           analytics.improvement >= 0
-            ? "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200"
-            : "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200"
+            ? "bg-linear-to-br from-purple-500 to-pink-600"
+            : "bg-linear-to-br from-orange-500 to-red-600"
         }`}>
-          <CardHeader className="pb-2">
-            <CardTitle className={`text-sm font-medium ${
-              analytics.improvement >= 0 ? "text-purple-600 dark:text-purple-400" : "text-orange-600 dark:text-orange-400"
-            }`}>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-white/90">
               Improvement
             </CardTitle>
+            {analytics.improvement >= 0 ? (
+              <TrendingUp className="h-5 w-5 text-white/80" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-white/80" />
+            )}
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="text-3xl font-bold">
-                {analytics.improvement > 0 ? "+" : ""}
-                {analytics.improvement}%
-              </div>
-              {analytics.improvement >= 0 ? (
-                <TrendingUp className="w-6 h-6 text-green-500" />
-              ) : (
-                <TrendingDown className="w-6 h-6 text-red-500" />
-              )}
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold">
+              {analytics.improvement > 0 ? "+" : ""}
+              {analytics.improvement}%
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Since first interview</p>
+            <p className="text-xs text-white/70 mt-1">Since first interview</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-linear-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-yellow-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+        <Card className="border-0 shadow-lg bg-linear-to-br from-amber-500 to-orange-600 text-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-white/90">
               Focus Areas
             </CardTitle>
+            <Sparkles className="h-5 w-5 text-white/80" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative z-10">
             <div className="text-3xl font-bold">{analytics.nextFocusAreas.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Areas to improve</p>
+            <p className="text-xs text-white/70 mt-1">Areas to improve</p>
           </CardContent>
         </Card>
       </div>
@@ -227,64 +243,103 @@ export default function InterviewProgress() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Progress Trend Chart */}
-            <Card>
+            <Card className="shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Overall Progress Trend
+                  <Activity className="w-5 h-5 text-primary" />
+                  Performance Trend
                 </CardTitle>
-                <CardDescription>Your performance over time</CardDescription>
+                <CardDescription>Your score progression over time</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={timelineData}>
+              <CardContent className="overflow-x-auto">
+                <ResponsiveContainer width="100%" height={320}>
+                  <ComposedChart data={timelineData}>
                     <defs>
-                      <linearlinear id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                      </linearlinear>
+                      <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+                      </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 12 }}
+                      stroke="#6b7280"
+                    />
+                    <YAxis 
+                      domain={[0, 100]} 
+                      tick={{ fontSize: 12 }}
+                      stroke="#6b7280"
+                      label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
                     <Area
                       type="monotone"
                       dataKey="score"
-                      stroke="#8884d8"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
                       fillOpacity={1}
                       fill="url(#colorScore)"
                     />
-                  </AreaChart>
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#2563eb"
+                      strokeWidth={2}
+                      dot={{ fill: '#3b82f6', r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </ComposedChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
             {/* Skills Radar Chart */}
-            <Card>
+            <Card className="shadow-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Skills Overview
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                  Skills Breakdown
                 </CardTitle>
-                <CardDescription>Average scores by category</CardDescription>
+                <CardDescription>Performance across different categories</CardDescription>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={320}>
                   <RadarChart data={radarData}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="category" />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                    <PolarGrid stroke="#e5e7eb" />
+                    <PolarAngleAxis 
+                      dataKey="category" 
+                      tick={{ fontSize: 11, fill: '#6b7280' }}
+                    />
+                    <PolarRadiusAxis 
+                      angle={90} 
+                      domain={[0, 100]} 
+                      tick={{ fontSize: 10, fill: '#6b7280' }}
+                    />
                     <Radar
                       name="Your Score"
                       dataKey="score"
-                      stroke="#8884d8"
-                      fill="#8884d8"
+                      stroke="#8b5cf6"
+                      fill="#8b5cf6"
                       fillOpacity={0.6}
+                      strokeWidth={2}
                     />
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px'
+                      }}
+                    />
                   </RadarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -294,29 +349,59 @@ export default function InterviewProgress() {
 
         {/* Skills Analysis Tab */}
         <TabsContent value="skills" className="space-y-4">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle>Category-Wise Performance</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-primary" />
+                Category Performance Analysis
+              </CardTitle>
               <CardDescription>
                 Detailed breakdown of your skills across different categories
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-x-auto">
               <ResponsiveContainer width="100%" height={400}>
                 <BarChart data={categoryBarData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="score" fill="#8884d8" radius={[8, 8, 0, 0]} />
+                  <defs>
+                    <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#059669" stopOpacity={0.8} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+                  <XAxis 
+                    dataKey="category" 
+                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    angle={-15}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    domain={[0, 100]} 
+                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                    label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="score" 
+                    fill="url(#colorBar)" 
+                    radius={[8, 8, 0, 0]}
+                    maxBarSize={60}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* Strengths and Weaknesses */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="border-green-200 bg-green-50/50 dark:bg-green-950/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-400">
@@ -387,12 +472,12 @@ export default function InterviewProgress() {
               </CardTitle>
               <CardDescription>Complete timeline of all your interviews</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="max-h-[600px] overflow-y-auto">
               <div className="space-y-4">
                 {Array.isArray(analytics.timeline) && analytics.timeline.map((interview, index) => (
                   <div
                     key={interview.id}
-                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent transition-colors"
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg hover:bg-accent transition-colors"
                   >
                     <div className="flex-0">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
@@ -466,7 +551,7 @@ export default function InterviewProgress() {
           {/* Motivational Card */}
           <Card className="bg-linear-to-r from-blue-500 to-purple-600 text-white">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <Award className="w-16 h-16" />
                 <div>
                   <h3 className="text-2xl font-bold mb-2">Keep Going! 🚀</h3>
