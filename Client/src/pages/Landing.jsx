@@ -1,25 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
-import { 
-  Users, 
-  TrendingUp, 
-  MessageSquare, 
-  Trophy, 
-  BookOpen, 
-  Code, 
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import {
+  Users,
+  TrendingUp,
+  MessageSquare,
+  Trophy,
+  BookOpen,
+  Code,
   GalleryVerticalEnd,
   CheckCircle,
   Sparkles,
   Target,
   Zap,
   Shield,
-  ArrowRight,
-  LogOut
+  ArrowRight
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
@@ -70,38 +70,62 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ fontFamily: "'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-      {/* Navigation */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="min-h-screen"
+      style={{ fontFamily: "'Oswald', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
+    >
       <nav className="absolute top-0 left-0 right-0 z-50 bg-transparent">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-              <img src="/logo.png" alt="Parakh.ai" className="h-24     w-auto" />
+            <div className="flex items-center gap-2">
+              {/* <h2 className="text-2xl font-bold bg-linear-to-r from-[#DFFF00] to-white bg-clip-text text-transparent">
+                Parakh.ai
+              </h2> */}
             </div>
-            <div className="flex items-center gap-4 mb-15">
+            <div className="flex items-center gap-4">
               {isAuthenticated ? (
                 <>
-                  <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate('/dashboard/interviews')}>
+                  <Button 
+                    className="bg-[#DFFF00] text-black hover:bg-[#c7e600] font-medium transition-colors" 
+                    onClick={() => navigate('/dashboard/interviews')}
+                  >
                     Dashboard
                   </Button>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
+                  <div className="relative group">
+                    <Avatar className="h-10 w-10 cursor-pointer ring-2 ring-white/20 hover:ring-[#DFFF00] transition-all">
+                      <AvatarImage src={user?.profilePic} alt={user?.name} />
+                      <AvatarFallback className="bg-white/10 text-white font-semibold">
                         {user?.name?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-white hidden md:block">{user?.name}</span>
+                    <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-black/90 backdrop-blur-sm rounded-lg border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                      <p className="text-sm font-medium text-white">{user?.name}</p>
+                    </div>
                   </div>
-                  <Button variant="ghost" className="text-white hover:bg-white/10" size="icon" onClick={handleLogout} title="Logout">
-                    <LogOut className="h-4 w-4" />
-                  </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => navigate('/login')}>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-300 hover:bg-white/10 border border-gray-400/30"
+                    onClick={() => {
+                      navigate('/login');
+                      setTimeout(() => window.location.reload(), 100);
+                    }}
+                  >
                     Log In
                   </Button>
-                  <Button className="bg-white text-purple-600 hover:bg-white/90 rounded-full px-8 py-2 font-medium" onClick={() => navigate('/register')}>
+                  <Button
+                    className="bg-[#DFFF00] text-black hover:bg-[#c7e600] font-medium transition-colors"
+                    onClick={() => {
+                      navigate('/register');
+                      setTimeout(() => window.location.reload(), 100);
+                    }}
+                  >
                     Sign Up
                   </Button>
                 </>
@@ -126,36 +150,59 @@ const Landing = () => {
           <div className="max-w-2xl ml-0 md:ml-8 lg:ml-16 space-y-5">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
               {isAuthenticated ? (
-                <>Welcome back, {user?.name?.split(' ')[0]}! <span className="block mt-1">Keep Practicing</span></>
+                <>
+                  Welcome back, <span className="bg-linear-to-r from-[#DFFF00] to-[#c7e600] bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span>
+                  <span className="block mt-1">Keep Practicing</span>
+                </>
               ) : (
-                <>Master Your Interview Skills <span className="block mt-1">With AI</span></>
+                <>
+                  Master Your <span className="bg-linear-to-r from-[#DFFF00] to-[#c7e600] bg-clip-text text-transparent">Interview Skills</span> With <span className="bg-linear-to-r from-[#DFFF00] to-white bg-clip-text text-transparent">AI</span>
+                </>
               )}
             </h1>
             <p className="text-base md:text-lg text-white/70 leading-relaxed max-w-xl">
               {isAuthenticated ? (
                 "Continue your journey to ace your next technical interview with personalized AI feedback and practice."
               ) : (
-                "Ace your next technical interview with AI-powered mock interviews, real-time feedback, and personalized practice sessions designed to boost your confidence."
+                <>
+                  Ace your next technical interview with <span className="text-[#DFFF00] font-medium">AI-powered</span> mock interviews, real-time feedback, and personalized practice sessions designed to boost your confidence.
+                </>
               )}
             </p>
             <div className="flex items-center gap-3 pt-4">
               {isAuthenticated ? (
                 <>
-                  <Button size="lg" className="btn-modern-purple" onClick={() => navigate('/dashboard/interviews')}>
+                  <Button
+                    size="lg"
+                    className="bg-[#DFFF00] text-black hover:bg-[#c7e600] font-medium transition-colors"
+                    onClick={() => navigate('/dashboard/interviews')}
+                  >
                     Go to Dashboard
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button size="lg" className="btn-modern-hollow" onClick={() => navigate('/dashboard/community')}>
+                  <Button
+                    size="lg"
+                    className="bg-transparent text-gray-300 border border-gray-400/30 hover:bg-white/10 transition-colors"
+                    onClick={() => navigate('/dashboard/community')}
+                  >
                     Visit Community
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button size="lg" className="btn-modern-purple" onClick={() => navigate('/register')}>
+                  <Button
+                    size="lg"
+                    className="bg-[#DFFF00] text-black hover:bg-[#c7e600] font-medium transition-colors"
+                    onClick={() => navigate('/register')}
+                  >
                     Start Practicing
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button size="lg" className="btn-modern-hollow" onClick={() => navigate('/login')}>
+                  <Button
+                    size="lg"
+                    className="bg-transparent text-gray-300 border border-gray-400/30 hover:bg-white/10 transition-colors"
+                    onClick={() => navigate('/login')}
+                  >
                     Sign In
                   </Button>
                 </>
@@ -164,7 +211,7 @@ const Landing = () => {
           </div>
         </div>
       </section>
-    </div>
+    </motion.div>
   );
 };
 

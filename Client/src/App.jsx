@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 import Login from './pages/Login';
@@ -24,6 +25,60 @@ import { NotificationProvider } from '@/components/ui/notification';
 
 import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
 import OAPrep from './pages/dashboard/OAPrep'; // kept from quiz branch
+
+const AnimatedRoutes = ({ token }) => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Landing />} />
+
+        <Route
+          path="/login"
+          element={token ? <Navigate to="/dashboard" replace /> : <Login />}
+        />
+
+        <Route
+          path="/register"
+          element={token ? <Navigate to="/dashboard" replace /> : <Register />}
+        />
+
+        <Route
+          path="/verify-email"
+          element={token ? <Navigate to="/dashboard" replace /> : <VerifyEmail />}
+        />
+
+        <Route
+          path="/dashboard"
+          element={token ? <Dashboard /> : <Navigate to="/" replace />}
+        >
+          {/* Default route */}
+          <Route index element={<Navigate to="interviews" replace />} />
+
+          {/* Interview Routes */}
+          <Route path="interviews" element={<Interviews />} />
+          <Route path="interviews/live/:id" element={<InterviewLive />} />
+
+          {/* Other Pages */}
+          <Route path="progress" element={<Progress />} />
+          <Route path="progress/interview" element={<InterviewProgress />} />
+          <Route path="progress/oa" element={<OAProgress />} />
+          <Route path="community" element={<Community />} />
+
+          {/* Additional Modules */}
+          <Route path="oa-prep" element={<OAPrep />} />
+          <Route path="system-design" element={<SystemDesignBoard />} />
+
+          {/* Settings */}
+          <Route path="settings" element={<Settings />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -52,55 +107,9 @@ const App = () => {
   return (
     <NotificationProvider>
       <BrowserRouter>
-        <Routes>
-
-          <Route path="/" element={<Landing />} />
-
-          <Route
-            path="/login"
-            element={token ? <Navigate to="/dashboard" replace /> : <Login />}
-          />
-
-          <Route
-            path="/register"
-            element={token ? <Navigate to="/dashboard" replace /> : <Register />}
-          />
-
-          <Route
-            path="/verify-email"
-            element={token ? <Navigate to="/dashboard" replace /> : <VerifyEmail />}
-          />
-
-          <Route
-            path="/dashboard"
-            element={token ? <Dashboard /> : <Navigate to="/login" replace />}
-          >
-
-            {/* Default route */}
-            <Route index element={<Navigate to="interviews" replace />} />
-
-            {/* Interview Routes */}
-            <Route path="interviews" element={<Interviews />} />
-            <Route path="interviews/live/:id" element={<InterviewLive />} />
-
-            {/* Other Pages */}
-            <Route path="progress" element={<Progress />} />
-            <Route path="progress/interview" element={<InterviewProgress />} />
-            <Route path="progress/oa" element={<OAProgress />} />
-            <Route path="community" element={<Community />} />
-
-            {/* Additional Modules */}
-            <Route path="oa-prep" element={<OAPrep />} />
-            <Route path="system-design" element={<SystemDesignBoard />} />
-
-            {/* Settings */}
-            <Route path="settings" element={<Settings />} />
-
-          </Route>
-
-          <Route path="*" element={<NotFound />} />
-
-        </Routes>
+        <div style={{ backgroundColor: '#000000', minHeight: '100vh' }}>
+          <AnimatedRoutes token={token} />
+        </div>
       </BrowserRouter>
     </NotificationProvider>
   );

@@ -151,7 +151,7 @@ export default function InterviewProgress() {
     <div className="space-y-6">
       {/* Key Metrics Cards */}
       <div className="grid md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
+        <Card className="bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400">
               Total Interviews
@@ -163,7 +163,7 @@ export default function InterviewProgress() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200">
+        <Card className="bg-linear-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-green-600 dark:text-green-400">
               Current Score
@@ -175,7 +175,7 @@ export default function InterviewProgress() {
           </CardContent>
         </Card>
 
-        <Card className={`bg-gradient-to-br ${
+        <Card className={`bg-linear-to-br ${
           analytics.improvement >= 0
             ? "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200"
             : "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200"
@@ -203,7 +203,7 @@ export default function InterviewProgress() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-yellow-200">
+        <Card className="bg-linear-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-yellow-200">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
               Focus Areas
@@ -241,10 +241,10 @@ export default function InterviewProgress() {
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={timelineData}>
                     <defs>
-                      <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                      <linearlinear id="colorScore" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
                         <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                      </linearGradient>
+                      </linearlinear>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
@@ -394,7 +394,7 @@ export default function InterviewProgress() {
                     key={interview.id}
                     className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent transition-colors"
                   >
-                    <div className="flex-shrink-0">
+                    <div className="flex-0">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
                         #{index + 1}
                       </div>
@@ -425,7 +425,7 @@ export default function InterviewProgress() {
 
         {/* Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
-          <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
+          <Card className="border-purple-200 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
                 <Target className="w-5 h-5" />
@@ -442,7 +442,7 @@ export default function InterviewProgress() {
                     key={index}
                     className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg border-l-4 border-purple-500"
                   >
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-700 dark:text-purple-300 font-bold">
+                    <div className="flex-0 w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-700 dark:text-purple-300 font-bold">
                       {index + 1}
                     </div>
                     <div className="flex-1">
@@ -464,7 +464,7 @@ export default function InterviewProgress() {
           </Card>
 
           {/* Motivational Card */}
-          <Card className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+          <Card className="bg-linear-to-r from-blue-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <Award className="w-16 h-16" />

@@ -35,19 +35,37 @@ const Interviews = () => {
   const [replayOpen, setReplayOpen] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [playingAudio, setPlayingAudio] = useState(null);
+  const [imageMap, setImageMap] = useState({}); // interviewId -> image filename
 
   const [form, setForm] = useState({
     role: "",
     difficulty: "",
     notes: "",
   });
+  const ASSET_BASE = import.meta.env.BASE_URL || "/";
+
+  const AVAILABLE_IMAGES = [
+    "aptitude.png",
+    "communication.png",
+    "frontend.png",
+    "logo.png",
+    "mongodb.png",
+    "mysql.png",
+    "nodejs.png",
+    "python.png",
+    "reactjs.png",
+  ];
+
 
   const fetchInterviews = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${base_url}/interviews`, { withCredentials: true });
-      setInterviews(res.data || []);
+      const list = res.data || [];
+      setInterviews(list);
       setError(null);
+      // Precompute images for cards
+      // computeImages(list);
     } catch (err) {
       console.error("Failed to fetch interviews:", err?.response?.data || err);
       setError("Failed to load interviews. Please login.");
@@ -90,9 +108,32 @@ const Interviews = () => {
   };
 
   const getImageByType = (role) => {
-    // Example: images stored in /public/interview_types/
-    const lower = role.toLowerCase();
-    return `/interview_types/${lower || "default"}.png`;
+    if (!role) return "logo.png";
+
+    // take the first word, lowercase it
+    const firstWord = role.trim().split(" ")[0].toLowerCase();
+
+    // example: "Frontend Developer" → "frontend.png"
+    console.log(`${ firstWord }.png`)
+    return `/${firstWord}.png`;
+  };
+
+  // Build a map from interview id to chosen image filename
+  const computeImages = async (list) => {
+    try {
+      const entries = await Promise.all(
+        (list || []).map(async (iv) => {
+          const filename = await getImageByType(iv.role);
+          return [iv._id, filename];
+        })
+      );
+      const map = Object.fromEntries(entries);
+      setImageMap(map);
+    } catch (e) {
+      console.warn("Failed to compute images, using defaults", e);
+      const fallback = Object.fromEntries((list || []).map((iv) => [iv._id, "logo.png"]));
+      setImageMap(fallback);
+    }
   };
 
   const handleJoinInterview = (interviewId) => {
@@ -144,6 +185,11 @@ const Interviews = () => {
               src={getImageByType(interview.role)}
               alt={interview.role}
               className="w-full h-40 object-cover rounded-t-xl"
+              loading="lazy"
+              // onError={(e) => {
+              //   e.currentTarget.onerror = null;
+              //   e.currentTarget.src = `${ASSET_BASE}interview_types/logo.png`;
+              // }}
             />
             <CardHeader>
               <CardTitle>{interview.title || "Untitled Interview"}</CardTitle>
