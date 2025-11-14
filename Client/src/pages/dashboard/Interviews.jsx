@@ -23,6 +23,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Play, Trash2, Video } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Interviews = () => {
   const base_url = import.meta.env.VITE_BACKEND_URL;
@@ -114,7 +121,7 @@ const Interviews = () => {
     const firstWord = role.trim().split(" ")[0].toLowerCase();
 
     // example: "Frontend Developer" → "frontend.png"
-    console.log(`${ firstWord }.png`)
+    // console.log(`${ firstWord }.png`)
     return `/${firstWord}.png`;
   };
 
@@ -180,45 +187,66 @@ const Interviews = () => {
 
       <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
         {interviews.map((interview) => (
-          <Card key={interview._id}>
-            <img
-              src={getImageByType(interview.role)}
-              alt={interview.role}
-              className="w-full h-40 object-cover rounded-t-xl"
-              loading="lazy"
-              // onError={(e) => {
-              //   e.currentTarget.onerror = null;
-              //   e.currentTarget.src = `${ASSET_BASE}interview_types/logo.png`;
-              // }}
-            />
-            <CardHeader>
-              <CardTitle>{interview.title || "Untitled Interview"}</CardTitle>
+          <Card
+            key={interview._id}
+            className="bg-gray-50 text-black rounded-xl shadow-sm hover:shadow-md transition border border-gray-200"
+          >
+            {/* CLEAN IMAGE — NO BG, NO GRAY BOX */}
+            <div className="w-full h-40 flex items-center justify-center overflow-hidden rounded-t-xl">
+              <img
+                src={getImageByType(interview.role)}
+                alt={interview.role}
+                className="object-contain h-32 w-auto"
+                onError={(e) => (e.currentTarget.src = "/logo.png")}
+              />
+            </div>
+
+            <CardHeader className="pb-0">
+              <CardTitle className="text-lg font-semibold tracking-tight">
+                {interview.title || interview.role || "Untitled Interview"}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <p><span className="font-semibold">Role:</span> {interview.role}</p>
-              <p><span className="font-semibold">Difficulty:</span> {interview.difficulty}</p>
-              <p className="text-sm text-gray-500">
-                <span className="font-semibold">Created:</span>{" "}
-                {new Date(interview.createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}{" "}
-                at {new Date(interview.createdAt).toLocaleTimeString('en-US', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-              <Badge variant={interview.status === "completed" ? "default" : "secondary"}>
+
+            <CardContent className="space-y-3 pt-3">
+              <div className="space-y-1">
+                <p className="text-sm">
+                  <span className="font-medium text-gray-800">Role:</span>{" "}
+                  {interview.role}
+                </p>
+
+                <p className="text-sm">
+                  <span className="font-medium text-gray-800">Difficulty:</span>{" "}
+                  {interview.difficulty}
+                </p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  <span className="font-medium">Created:</span>{" "}
+                  {new Date(interview.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                  {" • "}
+                  {new Date(interview.createdAt).toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+
+              <Badge
+                variant={interview.status === "completed" ? "default" : "secondary"}
+                className="mt-2"
+              >
                 {interview.status.replace("_", " ")}
               </Badge>
-              
+
               <div className="flex gap-2 mt-4">
-                {interview.status === "completed" && interview.conversation?.length > 0 ? (
+                {interview.status === "completed" &&
+                  interview.conversation?.length > 0 ? (
                   <Button 
                     onClick={() => handleViewRecording(interview)}
-                    className="flex-1"
-                    variant="default"
+                    className="flex-1 cursor-pointer"
                   >
                     <Video className="h-4 w-4 mr-2" />
                     View Recording
@@ -226,19 +254,18 @@ const Interviews = () => {
                 ) : (
                   <Button 
                     onClick={() => handleJoinInterview(interview._id)}
-                    className="flex-1"
-                    variant="default"
+                    className="flex-1 cursor-pointer"
                   >
                     <Play className="h-4 w-4 mr-2" />
                     Join
                   </Button>
                 )}
-                
-                <Button 
-                  onClick={() => handleDeleteInterview(interview._id, interview.title)}
+
+                <Button
+                  onClick={() => handleDeleteInterview(interview._id)}
                   variant="outline"
                   size="icon"
-                  className="border-red-300 hover:bg-red-50"
+                  className="border-red-300 hover:bg-red-50 cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4 text-red-600" />
                 </Button>
@@ -250,49 +277,88 @@ const Interviews = () => {
 
       {/* Floating Form (Modal) */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent
+          className="
+      sm:max-w-[500px]
+      bg-black/70 
+      backdrop-blur-xl 
+      border border-white/10 
+      text-white 
+      shadow-2xl 
+      rounded-xl
+    "
+        >
           <DialogHeader>
-            <DialogTitle>Create New Interview</DialogTitle>
-            <DialogDescription>
-              Fill in the details below to create a new mock interview session.
+            <DialogTitle className="text-2xl font-semibold text-white">
+              Create New Interview
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Fill in the details to start a new interview session.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleCreateInterview} className="space-y-4 mt-4">
+
+          <form onSubmit={handleCreateInterview} className="space-y-5 mt-4">
+
+            {/* Role */}
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Input 
+              <Label htmlFor="role" className="text-white">Role</Label>
+              <Input
                 id="role"
-                name="role" 
-                value={form.role} 
+                name="role"
+                value={form.role}
                 onChange={handleChange}
-                placeholder="e.g., Frontend Developer"
+                // placeholder="e.g., Frontend Developer"
+                className="bg-black/70 text-white border border-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-white/40 placeholder:text-gray-500 transition-colors"
                 required
               />
             </div>
+
+            {/* Difficulty */}
             <div className="space-y-2">
-              <Label htmlFor="difficulty">Difficulty</Label>
-              <Input 
-                id="difficulty"
-                name="difficulty" 
-                value={form.difficulty} 
-                onChange={handleChange}
-                placeholder="e.g., Easy, Medium, Hard"
+              <Label htmlFor="difficulty" className="text-white">Difficulty</Label>
+              <Select
+                value={form.difficulty}
+                onValueChange={(value) => setForm({ ...form, difficulty: value })}
                 required
-              />
+              >
+                <SelectTrigger className="bg-black/70 text-white border border-white/20 focus:ring-0 focus:ring-offset-0 focus:border-white/40 transition-colors">
+                  <SelectValue placeholder="Select difficulty level" />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 text-white border border-white/20">
+                  <SelectItem value="Easy" className="focus:bg-white/10 focus:text-white cursor-pointer">Easy</SelectItem>
+                  <SelectItem value="Medium" className="focus:bg-white/10 focus:text-white cursor-pointer">Medium</SelectItem>
+                  <SelectItem value="Hard" className="focus:bg-white/10 focus:text-white cursor-pointer">Hard</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (optional)</Label>
+              <Label htmlFor="notes" className="text-white">Notes (optional)</Label>
               <Input
                 id="notes"
                 name="notes"
                 value={form.notes}
-                placeholder="Any specific notes for AI?"
                 onChange={handleChange}
+                // placeholder="Any specific notes for AI?"
+                className="bg-black/70 text-white border border-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-white/40 placeholder:text-gray-500 transition-colors"
               />
             </div>
+
             <DialogFooter>
-              <Button type="submit" className="w-full" disabled={creating}>
-                {creating ? "Creating Interview..." : "Create Interview"}
+              <Button
+                type="submit"
+                disabled={creating}
+                className="w-full bg-[#DFFF00] text-black font-semibold hover:bg-[#c7e600] transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(223,255,0,0.5)] active:scale-95"
+              >
+                {creating ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    Creating...
+                  </div>
+                ) : (
+                  "Create Interview"
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -300,76 +366,118 @@ const Interviews = () => {
       </Dialog>
 
       {/* Replay Dialog */}
+      {/* Replay Dialog */}
       <Dialog open={replayOpen} onOpenChange={setReplayOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh]">
+        <DialogContent
+          className="
+      sm:max-w-[700px] max-h-[85vh]
+      bg-black/70 backdrop-blur-xl
+      border border-white/10 
+      text-white 
+      shadow-2xl rounded-xl
+      overflow-hidden
+    "
+        >
           <DialogHeader>
-            <DialogTitle>{selectedInterview?.title || "Interview Recording"}</DialogTitle>
-            <DialogDescription>
-              Review the conversation from your interview session
+            <DialogTitle className="text-2xl font-semibold text-white">
+              {selectedInterview?.title || "Interview Recording"}
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Review your interview conversation and audio responses.
             </DialogDescription>
           </DialogHeader>
-          
-          <ScrollArea className="h-[500px] w-full rounded-md border p-4">
+
+          {/* Scrollable Content */}
+          <ScrollArea className="h-[55vh] w-full rounded-lg p-4 border border-white/10 bg-black/30">
             {selectedInterview?.conversation && selectedInterview.conversation.length > 0 ? (
-              <div className="space-y-4">
-                {selectedInterview.conversation.map((turn, idx) => (
-                  <div 
-                    key={idx}
-                    className={`flex flex-col p-3 rounded-lg ${
-                      turn.speaker === 'user' 
-                        ? 'bg-blue-50 border-l-4 border-blue-500' 
-                        : 'bg-green-50 border-l-4 border-green-500'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={turn.speaker === 'user' ? 'default' : 'secondary'}>
-                        {turn.speaker === 'user' ? 'You' : 'AI Interviewer'}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {new Date(turn.timestamp).toLocaleTimeString()}
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm mb-2">{turn.text}</p>
-                    
-                    {turn.audioUrl ? (
-                      <div className="space-y-1">
-                        <audio 
-                          controls 
-                          className="w-full h-10"
-                          onPlay={() => setPlayingAudio(idx)}
-                          onPause={() => setPlayingAudio(null)}
-                          preload="metadata"
+              <div className="space-y-5">
+
+                {selectedInterview.conversation.map((turn, idx) => {
+                  const isUser = turn.speaker === "user";
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`
+                  p-4 rounded-xl 
+                  border border-white/10 
+                  backdrop-blur-sm 
+                  ${isUser ? "bg-white/10" : "bg-white/5"}
+                `}
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between pb-2">
+                        <Badge
+                          className={`
+                      ${isUser ? "bg-[#DFFF00] text-black" : "bg-white/20 text-white"}
+                    `}
                         >
-                          <source src={turn.audioUrl} type="audio/webm" />
-                          <source src={turn.audioUrl} type="audio/wav" />
-                          <source src={turn.audioUrl} type="audio/mpeg" />
-                          Your browser does not support the audio element.
-                        </audio>
-                        <p className="text-xs text-gray-400 truncate">Audio: {turn.audioUrl}</p>
+                          {isUser ? "You" : "AI Interviewer"}
+                        </Badge>
+
+                        <span className="text-xs text-gray-400">
+                          {new Date(turn.timestamp).toLocaleTimeString()}
+                        </span>
                       </div>
-                    ) : (
-                      <p className="text-xs text-gray-400 italic">No audio recording available</p>
-                    )}
-                  </div>
-                ))}
+
+                      {/* Text */}
+                      <p className="text-sm leading-relaxed text-white">
+                        {turn.text}
+                      </p>
+
+                      {/* Audio Player */}
+                      {/* Audio Player */}
+                      {turn.audioUrl ? (
+                        <div className="mt-3">
+                          <audio
+                            controls
+                            className="
+        w-full 
+        h-10 
+        rounded 
+        bg-black/30 
+        border border-white/10
+      "
+                            onPlay={() => setPlayingAudio(idx)}
+                            onPause={() => setPlayingAudio(null)}
+                            preload="metadata"
+                          >
+                            <source src={turn.audioUrl} type="audio/webm" />
+                            <source src={turn.audioUrl} type="audio/mp3" />
+                            <source src={turn.audioUrl} type="audio/mpeg" />
+                            <source src={turn.audioUrl} type="audio/wav" />
+                            Your browser does not support audio playback.
+                          </audio>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-500 italic mt-2">No audio recorded</p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center text-gray-500 py-8">
-                No conversation recorded for this interview
+                No conversation recorded for this interview.
               </div>
             )}
           </ScrollArea>
 
-          {selectedInterview?.result?.evaluation && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold mb-2">Evaluation</h4>
-              <p className="text-sm text-gray-700">{selectedInterview.result.evaluation}</p>
+          {/* Evaluation */}
+          {/* {selectedInterview?.result?.evaluation && (
+            <div className="mt-4 p-4 bg-white/5 border border-white/10 rounded-xl text-white">
+              <h4 className="font-semibold text-lg mb-2">Evaluation Summary</h4>
+              <p className="text-sm leading-relaxed text-gray-300">
+                {selectedInterview.result.evaluation}
+              </p>
             </div>
-          )}
-          
-          <DialogFooter>
-            <Button onClick={() => setReplayOpen(false)} variant="outline">
+          )} */}
+
+          <DialogFooter className="mt-4">
+            <Button
+              onClick={() => setReplayOpen(false)}
+              className="bg-[#DFFF00] text-black font-semibold hover:bg-[#c7e600] transition-all"
+            >
               Close
             </Button>
           </DialogFooter>
