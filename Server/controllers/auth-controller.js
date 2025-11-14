@@ -5,7 +5,7 @@ import sendMail from "../config/sendMail.js";
 
 export const registration = async (req, res) => {
       try {
-            let { name, email, password, username } = req.body;
+            let { name, email, password, username, image } = req.body;
             // Basic validation
             if (!username || typeof username !== 'string' || !username.trim()) {
                   return res.status(400).json({ message: 'Username is required' });
@@ -30,7 +30,90 @@ export const registration = async (req, res) => {
                   to: email,
                   subject: "Parakh.ai Email Verification",
                   text: `Your verification code is: ${verificationCode}`,
-                  html: `<p>Your verification code is: <b>${verificationCode}</b></p>`
+                  html: `
+  <div style="
+    width: 100%;
+    background: #f9f9f9;
+    padding: 40px 0;
+    font-family: Arial, Helvetica, sans-serif;
+  ">
+    <div style="
+      max-width: 500px;
+      margin: auto;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 30px;
+      border: 1px solid #ececec;
+    ">
+      
+      <h2 style="
+        margin: 0 0 10px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #111;
+        text-align: center;
+      ">
+        Verify Your Email
+      </h2>
+
+      <p style="
+        font-size: 15px;
+        color: #444;
+        line-height: 1.6;
+        margin-top: 20px;
+      ">
+        Hi there,  
+        <br><br>
+        Use the verification code below to complete your registration:
+      </p>
+
+      <div style="
+        margin: 30px auto;
+        text-align: center;
+      ">
+        <div style="
+          font-size: 32px;
+          font-weight: bold;
+          letter-spacing: 5px;
+          padding: 16px 0;
+          color: #000;
+          background: #DFFF00;
+          border-radius: 6px;
+          border: 1px solid #c7e600;
+          display: inline-block;
+          width: 80%;
+        ">
+          ${verificationCode}
+        </div>
+      </div>
+
+      <p style="
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+      ">
+        This code will expire in <b>10 minutes</b>.  
+        If you did not request this, please ignore this email.
+      </p>
+
+      <hr style="
+        margin: 30px 0;
+        border: none;
+        height: 1px;
+        background: #eee;
+      " />
+
+      <p style="
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+      ">
+        © ${new Date().getFullYear()} Parakh.ai — All rights reserved.
+      </p>
+
+    </div>
+  </div>
+`
             });
 
             // Hash password
@@ -46,6 +129,7 @@ export const registration = async (req, res) => {
                   isVerified: false,
                   verificationCode,
                   verificationCodeExpires: codeExpires,
+                  image: image || "",
             });
             await newUser.save();
 

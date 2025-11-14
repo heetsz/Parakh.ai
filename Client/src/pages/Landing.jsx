@@ -97,7 +97,7 @@ const Landing = () => {
                   </Button>
                   <div className="relative group">
                     <Avatar className="h-10 w-10 cursor-pointer ring-2 ring-white/20 hover:ring-[#DFFF00] transition-all">
-                      <AvatarImage src={user?.profilePic} alt={user?.name} />
+                      <AvatarImage src={user?.image} alt={user?.name} />
                       <AvatarFallback className="bg-white/10 text-white font-semibold">
                         {user?.name?.charAt(0).toUpperCase() || "U"}
                       </AvatarFallback>

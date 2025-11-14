@@ -11,6 +11,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -20,12 +22,10 @@ export default function VerifyEmailPage() {
   const email = location.state?.email || "";
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
 
   const handleVerify = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       const res = await axios.post(
@@ -35,11 +35,18 @@ export default function VerifyEmailPage() {
       );
 
       if (res.status === 200) {
-        setMessage("Email verified successfully!");
-        window.location.reload();
+        toast.success("Email verified successfully!", {
+          position: "top-right",
+          theme: "dark",
+        });
+
+        setTimeout(() => window.location.reload(), 800);
       }
     } catch (err) {
-      setMessage(err.response?.data?.message || "Verification failed");
+      toast.error(err.response?.data?.message || "Verification failed", {
+        position: "top-right",
+        theme: "dark",
+      });
     } finally {
       setLoading(false);
     }
@@ -47,7 +54,6 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-black">
-      {/* Subtle Glass Card */}
       <Card
         className="
           w-full max-w-sm 
@@ -68,7 +74,6 @@ export default function VerifyEmailPage() {
 
         <CardContent>
           <form className="space-y-5" onSubmit={handleVerify}>
-            {/* Code Field */}
             <div className="space-y-2">
               <Label htmlFor="code" className="text-gray-200">
                 Verification Code
@@ -92,36 +97,34 @@ export default function VerifyEmailPage() {
               />
             </div>
 
-            {/* Button (Professional, no glow) */}
             <Button
               type="submit"
               disabled={loading}
               className="
-                w-full
-                font-medium
-                bg-[#DFFF00]
-                text-black
-                hover:bg-[#c7e600]
-                transition-colors
-              "
+    w-full
+    font-medium
+    bg-[#DFFF00]
+    text-black
+    hover:bg-[#c7e600]
+    transition-colors
+    flex items-center justify-center gap-2
+  "
             >
-              {loading ? "Verifying..." : "Verify"}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  Verifying...
+                </>
+              ) : (
+                "Verify"
+              )}
             </Button>
-
-            {/* Error / Success Message */}
-            {message && (
-              <p
-                className={`text-center text-sm mt-2 ${message.includes("success")
-                    ? "text-green-400"
-                    : "text-red-400"
-                  }`}
-              >
-                {message}
-              </p>
-            )}
           </form>
         </CardContent>
       </Card>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 }

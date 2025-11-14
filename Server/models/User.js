@@ -8,22 +8,8 @@ const userSchema = new Schema({
   isVerified: { type: Boolean, default: false },
   verificationCode: { type: String },
   verificationCodeExpires: { type: Date },
-
-  // ✅ Added fields for Gamification
-  coins: { type: Number, default: 500 },
-  achievements: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Achievement",
-      default: [],
-    },
-  ],
-  purchasedItems: [
-    {
-      item: { type: Schema.Types.ObjectId, ref: "StoreItem" },
-      quantity: { type: Number, default: 1 },
-    },
-  ],
+  // Profile image URL
+  image: { type: String, default: "" },
 });
 
 // Note: Indexes are automatically created by MongoDB for unique fields

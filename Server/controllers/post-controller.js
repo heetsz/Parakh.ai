@@ -19,8 +19,8 @@ export const createPost = async (req, res) => {
       attachments: attachments || []
     });
 
-    await post.save();
-    await post.populate('author', 'name email username');
+  await post.save();
+  await post.populate('author', 'name email username image');
 
     res.status(201).json({
       success: true,
@@ -42,8 +42,8 @@ export const getAllPosts = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const posts = await Post.find()
-      .populate('author', 'name email username')
-      .populate('comments.author', 'name email username')
+      .populate('author', 'name email username image')
+      .populate('comments.author', 'name email username image')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -122,8 +122,8 @@ export const addComment = async (req, res) => {
       content
     });
 
-    await post.save();
-    await post.populate('comments.author', 'name email username');
+  await post.save();
+  await post.populate('comments.author', 'name email username image');
 
     res.status(200).json({
       success: true,
