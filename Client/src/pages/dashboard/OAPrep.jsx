@@ -189,22 +189,51 @@ export default function OAPrep() {
       topic: q.topic
     }));
 
+    // Calculate time taken
+    const timeTaken = quizStartTime ? Math.floor((Date.now() - quizStartTime) / 1000) : 0;
+
     setLoading(true);
     try {
+      console.log('Submitting quiz with data:', {
+        answersCount: answersArray.length,
+        questionsCount: quiz.questions.length,
+        timeTaken,
+        quizDuration: quiz.totalTimeInSeconds
+      });
+
       const response = await axios.post(
         `${API_URL}/oa/submit`,
         {
           answers: answersArray,
-          quizMetadata: formData
+          quizMetadata: formData,
+          questions: quiz.questions,
+          timeTaken,
+          quizDuration: quiz.totalTimeInSeconds
         },
         { withCredentials: true }
       );
       
+      console.log('Quiz submitted successfully:', response.data);
       setResults(response.data.results);
       setStep("results");
     } catch (error) {
       console.error("Error submitting quiz:", error);
-      alert("Failed to submit quiz");
+      console.error("Error response:", error.response?.data);
+      
+      const errorMessage = error.response?.data?.message || error.message || "Failed to submit quiz";
+      
+      // Handle authentication errors
+      if (error.response?.status === 401) {
+        alert(`Session expired: ${errorMessage}\n\nYou will be redirected to login.`);
+        // Clear session storage
+        clearSession();
+        // Redirect to login
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      } else {
+        alert(`Failed to submit quiz: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }

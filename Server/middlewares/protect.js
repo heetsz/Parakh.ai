@@ -33,6 +33,21 @@ export const protect = async (req, res, next) => {
             next();
       } catch (error) {
             console.error("Auth error:", error);
-            res.status(401).json({ message: 'Access Denied, Invalid Token' });
+            console.error("Error name:", error.name);
+            console.error("Error message:", error.message);
+            
+            let errorMessage = 'Access Denied, Invalid Token';
+            
+            if (error.name === 'TokenExpiredError') {
+                  errorMessage = 'Token expired, please login again';
+            } else if (error.name === 'JsonWebTokenError') {
+                  errorMessage = 'Invalid token, please login again';
+            }
+            
+            res.status(401).json({ 
+                  success: false,
+                  message: errorMessage,
+                  error: error.message 
+            });
       }
 };
