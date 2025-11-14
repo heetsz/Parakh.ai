@@ -20,9 +20,9 @@ export default function Toolbar({ setSelectedTool }) {
   };
 
   return (
-    <div className="w-full flex items-center gap-2 p-3 border-b bg-muted/30">
+    <div className=" w-full flex items-center gap-2 p-3 border-b bg-muted/30">
 
-      <Button variant="outline" onClick={() => chooseTool("pen")}>
+      <Button variant="outline" className="ml-10" onClick={() => chooseTool("pen")}>
         <PenTool size={18} />
       </Button>
 

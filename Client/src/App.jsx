@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 import Login from './pages/Login';
@@ -28,11 +27,8 @@ import SystemDesignBoard from './pages/dashboard/SystemDesignBoard';
 import OAPrep from './pages/dashboard/OAPrep'; // kept from quiz branch
 
 const AnimatedRoutes = ({ token }) => {
-  const location = useLocation();
-
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes>
         <Route path="/" element={<Landing />} />
 
         <Route
@@ -77,7 +73,6 @@ const AnimatedRoutes = ({ token }) => {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </AnimatePresence>
   );
 };
 

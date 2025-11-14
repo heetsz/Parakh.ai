@@ -69,7 +69,7 @@ export function AppSidebar(props) {
     navMain: [
       // Single-tab sections
       { title: "Interviews", url: "/dashboard/interviews", icon: Users, isActive: true },
-      { title: "OA Prep", url: "/dashboard/oa-prep", icon: Brain },
+      { title: "OA Preparation", url: "/dashboard/oa-prep", icon: Brain },
       {
         title: "Track Progress",
         url: "/dashboard/progress",

@@ -29,6 +29,7 @@ const segmentLabels = {
       "interview-live": "Live Interview",
       "study-material-leetcode": "LeetCode Study",
       "study-material-strivers": "Striver's Study",
+      "oa-prep": "OA Preparation",
 };
 
 function getBreadcrumbs(pathname) {

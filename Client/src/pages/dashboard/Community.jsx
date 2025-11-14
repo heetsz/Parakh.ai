@@ -136,6 +136,23 @@ export default function Community() {
     }
   };
   
+  const handleDeleteComment = async (postId, commentId) => {
+    try {
+      await axios.delete(
+        `${API_URL}/community/posts/${postId}/comment/${commentId}`,
+        { withCredentials: true }
+      );
+      
+      setPosts(posts.map(post => 
+        post._id === postId 
+          ? { ...post, comments: post.comments.filter(c => c._id !== commentId) }
+          : post
+      ));
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+  
   const confirmDelete = (postId) => {
     setPostToDelete(postId);
     setDeleteDialogOpen(true);
@@ -265,8 +282,8 @@ export default function Community() {
     <div className="p-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Community</h1>
-          <p className="text-muted-foreground">Connect and share with the community</p>
+          <h1 className="ml-4 text-4xl font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Community</h1>
+          <p className="ml-4 text-muted-foreground">Connect and share with the community</p>
         </div>
       </div>
 
@@ -405,6 +422,16 @@ export default function Community() {
                         <p className="font-medium">{comment.author?.name || "Anonymous"}</p>
                         <p className="text-muted-foreground">{comment.content}</p>
                       </div>
+                      {(currentUserId === comment.author?._id || currentUserId === post.author?._id) && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => handleDeleteComment(post._id, comment._id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>

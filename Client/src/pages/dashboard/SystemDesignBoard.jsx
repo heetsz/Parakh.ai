@@ -7,7 +7,7 @@ export default function SystemDesignBoard() {
 
   return (
     <div className="w-full h-full">
-      <Toolbar setSelectedTool={setSelectedTool} />
+      <Toolbar  setSelectedTool={setSelectedTool} />
       <Whiteboard selectedTool={selectedTool} />
     </div>
   );
