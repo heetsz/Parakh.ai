@@ -335,7 +335,7 @@ export default function OAPrep() {
     return (
       <div className="p-6">
         <div className="mb-6">
-          <h1 className="text-4xl ml-5 font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">OA Preparation</h1>
+          <h1 className="text-4xl ml-5 font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">OA Preparation</h1>
           <p className="text-muted-foreground ml-5 mt-1">Generate AI-powered quiz questions tailored to your interview preparation needs</p>
         </div>
 
