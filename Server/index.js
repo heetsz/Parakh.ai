@@ -9,6 +9,7 @@ import mailRouter from "./routes/mail-route.js";
 import interviewRoutes from "./routes/interview-route.js";
 import postRouter from "./routes/post-route.js";
 import oaRouter from "./routes/oa-route.js";
+import settingsRouter from "./routes/settings-route.js";
 
 dotenv.config();
 const app = express();
@@ -57,6 +58,7 @@ app.use("/api", mailRouter);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/community", postRouter);
 app.use("/api/oa", oaRouter);
+app.use("/api", settingsRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

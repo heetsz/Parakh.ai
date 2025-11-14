@@ -172,17 +172,55 @@ const Interviews = () => {
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         {/* <h1 className="text-3xl font-semibold">My Interviews</h1> */}
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="h-5 w-5 mr-2" /> 
-          Create Interview
-        </Button>
+        {interviews.length > 0 && (
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="h-5 w-5 mr-2" /> 
+            Create Interview
+          </Button>
+        )}
       </div>
 
       {loading && <p className="text-center text-muted-foreground">Loading interviews...</p>}
       {error && <p className="text-center text-destructive">{error}</p>}
 
       {!loading && !error && interviews.length === 0 && (
-        <p className="text-center text-muted-foreground">No interviews found.</p>
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-md shadow-sm p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <img src="/logo.png" alt="Parakh.ai" className="h-16 w-16 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-900">Kickstart your prep with Parakh.ai</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Parakh.ai is your all‑in‑one AI interview copilot. Practice live mock interviews with voice, get instant feedback,
+              track your progress, and fine‑tune your skills for the real thing.
+            </p>
+
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <p className="text-sm font-medium text-gray-800">Live AI Interviews</p>
+                <p className="mt-1 text-xs text-gray-500">Real‑time voice, transcripts, and smart follow‑ups.</p>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <p className="text-sm font-medium text-gray-800">Personalized Interviewers</p>
+                <p className="mt-1 text-xs text-gray-500">Choose your AI model’s name and avatar.</p>
+              </div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <p className="text-sm font-medium text-gray-800">Insights & Progress</p>
+                <p className="mt-1 text-xs text-gray-500">Keep improving with focused evaluations.</p>
+              </div>
+            </div>
+
+            <div className="mt-7">
+              <Button
+                onClick={() => setOpen(true)}
+                className="bg-[#DFFF00] text-black font-semibold hover:bg-[#c7e600] transition-all hover:scale-105"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create your first interview
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">

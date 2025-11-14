@@ -20,6 +20,7 @@ export default function Community() {
   const [isCreating, setIsCreating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserImage, setCurrentUserImage] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   
@@ -48,6 +49,7 @@ export default function Community() {
         withCredentials: true
       });
       setCurrentUserId(response.data._id);
+      setCurrentUserImage(response.data?.image || "");
     } catch (error) {
       console.error("Error fetching current user:", error);
     }
@@ -86,7 +88,7 @@ export default function Community() {
       setIsDialogOpen(false); // Close the dialog after posting
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Failed to create post: " + (error.response?.data?.message || error.message));
+      // alert("Failed to create post: " + (error.response?.data?.message || error.message));
     } finally {
       setIsCreating(false);
     }
@@ -196,7 +198,7 @@ export default function Community() {
         formData
       );
       
-      console.log('Upload successful:', response.data);
+      // console.log('Upload successful:', response.data);
       return response.data.secure_url;
     } catch (error) {
       console.error('Cloudinary upload error:', error);
@@ -205,7 +207,7 @@ export default function Community() {
       
       // Show specific error message
       const errorMsg = error.response?.data?.error?.message || 'Unknown error';
-      alert(`Upload failed: ${errorMsg}`);
+      // alert(`Upload failed: ${errorMsg}`);
       throw error;
     }
   };
@@ -216,13 +218,13 @@ export default function Community() {
     
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      // alert('Please select an image file');
       return;
     }
     
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      alert('Image size should be less than 10MB');
+      // alert('Image size should be less than 10MB');
       return;
     }
     
@@ -237,10 +239,10 @@ export default function Community() {
           name: file.name 
         }]
       });
-      alert('Image uploaded successfully!');
+      // alert('Image uploaded successfully!');
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Failed to upload image. Please check console for details.');
+      // alert('Failed to upload image.');
     } finally {
       setUploading(false);
       if (imageInputRef.current) {
@@ -295,6 +297,9 @@ export default function Community() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar>
+                    {post.author?.image ? (
+                      <AvatarImage src={post.author.image} alt={post.author?.name || "User"} />
+                    ) : null}
                     <AvatarFallback>
                       {post.author?.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
@@ -414,6 +419,9 @@ export default function Community() {
                   {post.comments.map((comment) => (
                     <div key={comment._id} className="flex gap-3 text-sm">
                       <Avatar className="h-8 w-8">
+                        {comment.author?.image ? (
+                          <AvatarImage src={comment.author.image} alt={comment.author?.name || "User"} />
+                        ) : null}
                         <AvatarFallback className="text-xs">
                           {comment.author?.name?.charAt(0).toUpperCase() || "U"}
                         </AvatarFallback>

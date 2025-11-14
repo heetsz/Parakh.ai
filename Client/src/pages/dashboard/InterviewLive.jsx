@@ -48,6 +48,8 @@ export default function InterviewLive() {
   const [cameraOn, setCameraOn] = useState(false); // camera toggle - default OFF
   const [userImageUrl, setUserImageUrl] = useState(null); // fetch from /me for avatar
     const [userName, setUserName] = useState("You"); // fetch from /me for display name
+  const [aiName, setAiName] = useState("AI Interviewer"); // from /me -> aiModelName
+  const [aiImageUrl, setAiImageUrl] = useState(null); // from /me -> aiModelImage
   const AI_IMAGE = "/web.png"; // place your AI avatar in public folder as ai.png
   const [timerSeconds, setTimerSeconds] = useState(0);
   const timerRef = useRef(null);
@@ -118,11 +120,28 @@ export default function InterviewLive() {
                       (res.data?.firstName || res.data?.firstname ? `${res.data?.firstName || res.data?.firstname} ${res.data?.lastName || res.data?.lastname || ""}`.trim() : null) ||
                       res.data?.username || res.data?.email?.split("@")[0];
             if (n) setUserName(n);
+
+            // AI interviewer model (name + image) from settings
+            const modelName = res.data?.aiModelName;
+            if (typeof modelName === "string" && modelName.trim()) {
+              setAiName(modelName);
+            } else {
+              setAiName("AI Interviewer");
+            }
+
+            const modelImg = res.data?.aiModelImage;
+            if (typeof modelImg === "string" && modelImg.trim()) {
+              setAiImageUrl(modelImg);
+            } else {
+              setAiImageUrl(null); // fallback to default AI_IMAGE in render
+            }
         }
       } catch (e) {
         // ignore errors; fallback to placeholder
           setUserImageUrl("/avatar-placeholder.png");
           setUserName("You");
+          setAiName("AI Interviewer");
+          setAiImageUrl(null);
       }
     };
     fetchMe();
@@ -143,6 +162,7 @@ export default function InterviewLive() {
         role: interview.role,
         difficulty: interview.difficulty,
         notes: interview.notes,
+        aiVoice: (typeof aiName === 'string' && aiName.trim()) ? aiName : undefined,
       };
       ws.send(JSON.stringify({ type: "interview_context", data: contextData }));
     };
@@ -584,8 +604,8 @@ export default function InterviewLive() {
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="w-72 h-72 rounded-full bg-linear-to-br from-gray-200 via-gray-100 to-white flex items-center justify-center overflow-hidden border-4 border-gray-300 shadow-2xl">
-              {/* AI avatar image */}
-              <img src={AI_IMAGE} alt="AI" className="w-56 h-56 object-cover rounded-full" />
+              {/* AI avatar image (from selected model or fallback) - fill full circle */}
+              <img src={aiImageUrl || AI_IMAGE} alt={aiName || "AI Interviewer"} className="w-full h-full object-cover object-center" />
 
               {/* AI waves when aiSpeaking is true */}
               <div className={`absolute inset-0 flex items-center justify-center pointer-events-none`}>
@@ -596,7 +616,7 @@ export default function InterviewLive() {
 
             </div>
 
-            {/* AI label with speaking indicator */}
+            {/* AI label with speaking indicator or model name */}
             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-linear-to-r from-blue-600 to-blue-500 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
               {aiSpeaking ? (
                 <>
@@ -606,7 +626,7 @@ export default function InterviewLive() {
               ) : (
                 <>
                   <Bot className="h-4 w-4 text-white" />
-                  <span className="text-sm font-semibold text-white">AI Interviewer</span>
+                  <span className="text-sm font-semibold text-white" title={aiName}>{aiName}</span>
                 </>
               )}
             </div>

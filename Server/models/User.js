@@ -10,6 +10,9 @@ const userSchema = new Schema({
   verificationCodeExpires: { type: Date },
   // Profile image URL
   image: { type: String, default: "" },
+  // Preferred AI model selection
+  aiModelName: { type: String, default: "" },
+  aiModelImage: { type: String, default: "" },
 });
 
 // Note: Indexes are automatically created by MongoDB for unique fields

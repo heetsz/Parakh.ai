@@ -6,7 +6,14 @@ from typing import List, Dict, Any
 
 from fastapi import APIRouter, WebSocket
 
-from ..services.groq_client import get_groq_client, GROQ_LLM_MODEL, GROQ_STT_MODEL, DEFAULT_TTS_MODEL, DEFAULT_TTS_VOICE
+from ..services.groq_client import (
+    get_groq_client,
+    get_groq_tts_client,
+    GROQ_LLM_MODEL,
+    GROQ_STT_MODEL,
+    DEFAULT_TTS_MODEL,
+    DEFAULT_TTS_VOICE,
+)
 from ..services.stt import transcribe_webm_bytes
 from ..services.llm import generate_reply
 from ..services.tts import synthesize_tts
@@ -24,6 +31,11 @@ async def interview_socket(websocket: WebSocket):
     history: List[Dict[str, Any]] = []  # [{role: user|assistant, content: str}]
     interview_context: Dict[str, Any] = {}  # Store interview details
     groq_client = get_groq_client()
+    # Choose a TTS client for this interview (alternate across API keys)
+    tts_client = get_groq_tts_client()
+    # Default TTS preferences (can be overridden by client context)
+    tts_voice = os.getenv("GROQ_TTS_VOICE", DEFAULT_TTS_VOICE)
+    tts_model = os.getenv("GROQ_TTS_MODEL", DEFAULT_TTS_MODEL)
 
     try:
         while True:
@@ -47,6 +59,11 @@ async def interview_socket(websocket: WebSocket):
                     # Store interview context for AI to use
                     interview_context = obj.get("data", {})
                     print(f"📋 Interview context received: {interview_context}")
+
+                    # Apply any TTS preferences provided by client
+                    voice_from_client = interview_context.get("aiVoice")
+                    if isinstance(voice_from_client, str) and voice_from_client.strip():
+                        tts_voice = voice_from_client.strip()
                     
                     # Send initial greeting based on interview context
                     role = interview_context.get("role", "candidate")
@@ -63,10 +80,10 @@ async def interview_socket(websocket: WebSocket):
                     # Generate TTS for greeting
                     try:
                         audio_bytes, mime = await synthesize_tts(
-                            groq_client,
+                            tts_client,
                             greeting,
-                            model=os.getenv("GROQ_TTS_MODEL", DEFAULT_TTS_MODEL),
-                            voice=os.getenv("GROQ_TTS_VOICE", DEFAULT_TTS_VOICE),
+                            model=tts_model,
+                            voice=tts_voice,
                             response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
                         )
                         await websocket.send_text(json.dumps({
@@ -76,7 +93,24 @@ async def interview_socket(websocket: WebSocket):
                         if audio_bytes:
                             await websocket.send_bytes(audio_bytes)
                     except Exception as e:
-                        print("[Groq TTS] error:", e)
+                        print("[Groq TTS] error (greeting):", e)
+                        # Fallback to default voice once
+                        try:
+                            audio_bytes, mime = await synthesize_tts(
+                                tts_client,
+                                greeting,
+                                model=tts_model,
+                                voice=DEFAULT_TTS_VOICE,
+                                response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
+                            )
+                            await websocket.send_text(json.dumps({
+                                "type": "assistant_audio",
+                                "audio_format": mime,
+                            }))
+                            if audio_bytes:
+                                await websocket.send_bytes(audio_bytes)
+                        except Exception as e2:
+                            print("[Groq TTS] fallback error (greeting):", e2)
                     
                     continue
 
@@ -104,15 +138,26 @@ async def interview_socket(websocket: WebSocket):
                     # 3) TTS using Groq
                     try:
                         audio_bytes, mime = await synthesize_tts(
-                            groq_client,
+                            tts_client,
                             reply_text,
-                            model=os.getenv("GROQ_TTS_MODEL", DEFAULT_TTS_MODEL),
-                            voice=os.getenv("GROQ_TTS_VOICE", DEFAULT_TTS_VOICE),
+                            model=tts_model,
+                            voice=tts_voice,
                             response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
                         )
                     except Exception as e:
-                        print("[Groq TTS] error:", e)
-                        audio_bytes, mime = b"", "audio/wav"
+                        print("[Groq TTS] error (reply):", e)
+                        # Fallback to default voice once
+                        try:
+                            audio_bytes, mime = await synthesize_tts(
+                                tts_client,
+                                reply_text,
+                                model=tts_model,
+                                voice=DEFAULT_TTS_VOICE,
+                                response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
+                            )
+                        except Exception as e2:
+                            print("[Groq TTS] fallback error (reply):", e2)
+                            audio_bytes, mime = b"", "audio/wav"
 
                     await websocket.send_text(json.dumps({
                         "type": "assistant_audio",
