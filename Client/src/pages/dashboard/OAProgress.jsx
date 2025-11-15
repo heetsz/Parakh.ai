@@ -415,7 +415,7 @@ export default function OAProgress() {
         <div className="flex items-center justify-center min-h-[60vh]">
           <Card className="w-full max-w-md text-center">
             <CardHeader>
-              <Brain className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+              {/* <Brain className="w-16 h-16 mx-auto mb-4 text-muted-foreground" /> */}
               <CardTitle>No Tests Yet</CardTitle>
               <CardDescription>
                 You haven't completed any OA tests yet. Start your first quiz to see your progress here!

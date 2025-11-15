@@ -272,7 +272,6 @@ export default function OAPrep() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Helper function to render text with code formatting
   const renderTextWithCode = (text) => {
     if (!text) return null;
     
@@ -352,10 +351,10 @@ export default function OAPrep() {
   if (step === "setup") {
     return (
       <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-4xl ml-5 font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">OA Preparation</h1>
-          <p className="text-muted-foreground ml-5 mt-1">Generate AI-powered quiz questions tailored to your interview preparation needs</p>
-        </div>
+      {/* //   <div className="mb-6">
+      //     <h1 className="text-4xl ml-5 font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">OA Preparation</h1>
+      //     <p className="text-muted-foreground ml-5 mt-1">Generate AI-powered quiz questions tailored to your interview preparation needs</p>
+      //   </div> */}
 
         <Card className="border-0 shadow-none">
           <CardHeader>
@@ -445,7 +444,7 @@ export default function OAPrep() {
                 placeholder="e.g., Binary Trees, Dynamic Programming, REST APIs, Event Loop, Closures, etc."
                 value={formData.concepts}
                 onChange={(e) => setFormData({ ...formData, concepts: e.target.value })}
-                className="min-h-[80px]"
+                className="min-h-80px"
               />
               <p className="text-xs text-muted-foreground">
                 Specify particular concepts you want to focus on
@@ -622,7 +621,7 @@ export default function OAPrep() {
                 {renderTextWithCode(question.question)}
               </CardTitle>
               {question.difficulty && (
-                <Badge variant="secondary" className="flex-shrink-0">
+                <Badge variant="secondary" className="flex-0">
                   {question.difficulty}
                 </Badge>
               )}
@@ -653,7 +652,7 @@ export default function OAPrep() {
                     </span>
                     <div className="flex-1">{renderTextWithCode(value)}</div>
                     {isSelected && (
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
+                      <CheckCircle className="h-5 w-5 text-primary flex-0" />
                     )}
                   </div>
                 </button>
@@ -842,9 +841,9 @@ export default function OAPrep() {
                     <CardHeader className="pb-3">
                       <div className="flex items-start gap-3">
                         {isCorrect ? (
-                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-1" />
+                          <CheckCircle className="h-5 w-5 text-green-500 flex-0 mt-1" />
                         ) : (
-                          <XCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-1" />
+                          <XCircle className="h-5 w-5 text-red-500 flex-0 mt-1" />
                         )}
                         <div className="flex-1 space-y-2">
                           <div className="flex items-start justify-between gap-2">
@@ -852,7 +851,7 @@ export default function OAPrep() {
                               Q{idx + 1}. {question.question}
                             </CardTitle>
                             {question.difficulty && (
-                              <Badge variant="outline" className="flex-shrink-0">
+                              <Badge variant="outline" className="flex-0">
                                 {question.difficulty}
                               </Badge>
                             )}

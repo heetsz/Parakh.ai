@@ -60,7 +60,7 @@ const AnimatedRoutes = ({ token }) => {
           {/* Other Pages */}
           <Route path="progress" element={<Progress />} />
           <Route path="progress/interview" element={<InterviewProgress />} />
-          <Route path="progress/oa" element={<OAProgress />} />
+        <Route path="progress/online-assessment" element={<OAProgress />} />
           <Route path="community" element={<Community />} />
 
           {/* Additional Modules */}

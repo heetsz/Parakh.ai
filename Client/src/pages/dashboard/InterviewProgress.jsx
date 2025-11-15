@@ -101,7 +101,7 @@ export default function InterviewProgress() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
-            <Sparkles className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            {/* <Sparkles className="w-16 h-16 mx-auto mb-4 text-muted-foreground" /> */}
             <CardTitle>Start Your Journey!</CardTitle>
             <CardDescription>
               Complete your first interview to see your progress analytics and insights.

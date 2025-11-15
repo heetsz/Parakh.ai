@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Play, Trash2, Video } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -67,7 +68,8 @@ const Interviews = () => {
 
   const fetchInterviews = async () => {
     setLoading(true);
-    const minLoadTime = new Promise(resolve => setTimeout(resolve, 100));
+  // Ensure skeletons are visible even on very fast responses
+  const minLoadTime = new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       const res = await axios.get(`${base_url}/interviews`, { withCredentials: true });
@@ -188,14 +190,46 @@ const Interviews = () => {
         )}
       </div>
 
-      {(loading || initialLoad) && <p className="text-center text-muted-foreground">Loading interviews...</p>}
+      {(loading || initialLoad) && (
+        <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card
+              key={i}
+              className="bg-gray-50 text-black rounded-xl shadow-sm border border-gray-200"
+            >
+              <div className="w-full h-40 flex items-center justify-center overflow-hidden rounded-t-xl">
+                <Skeleton className="h-32 w-32 rounded-md" />
+              </div>
+
+              <CardHeader className="pb-0">
+                <Skeleton className="h-5 w-3/4" />
+              </CardHeader>
+
+              <CardContent className="space-y-3 pt-3">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+
+                <Skeleton className="h-6 w-24 rounded-full" />
+
+                <div className="flex gap-2 mt-4">
+                  <Skeleton className="h-9 w-full" />
+                  <Skeleton className="h-9 w-9 rounded-md" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
       {error && <p className="text-center text-destructive">{error}</p>}
 
       {!loading && !initialLoad && !error && interviews.length === 0 && (
         <div className="max-w-3xl mx-auto">
           <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-md shadow-sm p-8 text-center">
             <div className="flex justify-center mb-4">
-              <img src="/logo.png" alt="Parakh.ai" className="h-16 w-16 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
+              {/* <img src="/mainlogo.png" alt="Parakh.ai" className="h-16 w-16 object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} /> */}
             </div>
             <h2 className="text-2xl font-semibold text-gray-900">Kickstart your prep with Parakh.ai</h2>
             <p className="mt-2 text-sm text-gray-600">

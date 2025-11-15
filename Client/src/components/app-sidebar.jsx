@@ -85,11 +85,11 @@ export function AppSidebar(props) {
         icon: TrendingUp,
         items: [
           { title: "Interview Progress", url: "/dashboard/progress/interview", icon: Users },
-          { title: "OA Progress", url: "/dashboard/progress/oa", icon: Brain },
+          { title: "OA Progress", url: "/dashboard/progress/online-assessment", icon: Brain },
         ],
       },
       { title: "Community", url: "/dashboard/community", icon: MessageSquare },
-      { title: "System Design Board", url: "/dashboard/system-design", icon: GalleryVerticalEnd },
+      { title: "WhiteBoard", url: "/dashboard/system-design", icon: GalleryVerticalEnd },
     ],
   }
 
