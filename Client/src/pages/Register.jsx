@@ -28,7 +28,7 @@ export default function RegisterPage() {
       const [showPassword, setShowPassword] = useState(false);
 
       const [loading, setLoading] = useState(false);
-      const { error } = useNotification();
+      const { error, push } = useNotification();
 
       const handleRegister = async (e) => {
             e.preventDefault();
@@ -48,9 +48,12 @@ export default function RegisterPage() {
 
                   if (res.status === 200) {
                         navigate("/verify-email", { state: { email } });
+                        push({ type: 'success', title: 'Registration', message: 'Account created. Verify your email to continue.' });
                   }
             } catch (err) {
-                  error(err.response?.data?.message || "Something went wrong", "Registration failed");
+                  const msg = err.response?.data?.message || "Something went wrong";
+                  error(msg, "Registration failed");
+                  push({ type: 'error', title: 'Registration failed', message: msg, toast: false });
             } finally {
                   setLoading(false);
             }

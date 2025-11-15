@@ -11,7 +11,7 @@ import { Trash2, CheckCircle2, Circle } from "lucide-react";
 
 export default function Settings() {
   const base_url = import.meta.env.VITE_BACKEND_URL || "/api";
-  const { success, error } = useNotification();
+  const { success, error, push } = useNotification();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -108,6 +108,7 @@ export default function Settings() {
       });
       setAvatar(res.data?.image || avatar);
       success("Profile image updated");
+      push({ type: 'success', title: 'Settings', message: 'Profile image updated' , toast: false});
     } catch (e) {
       error(e?.response?.data?.message || "Failed to upload image");
     } finally {
@@ -119,6 +120,7 @@ export default function Settings() {
     try {
       await axios.patch(`${base_url}/settings/email`, { email }, { withCredentials: true });
       success("Email updated");
+      push({ type: 'success', title: 'Settings', message: 'Email updated', toast: false });
     } catch (e) {
       error(e?.response?.data?.message || "Failed to update email");
     }
@@ -128,6 +130,7 @@ export default function Settings() {
     try {
       await axios.patch(`${base_url}/settings/name`, { name }, { withCredentials: true });
       success("Name updated");
+      push({ type: 'success', title: 'Settings', message: 'Name updated', toast: false });
     } catch (e) {
       error(e?.response?.data?.message || "Failed to update name");
     }
@@ -139,6 +142,7 @@ export default function Settings() {
     try {
       await axios.patch(`${base_url}/settings/password`, { currentPassword, newPassword }, { withCredentials: true });
       success("Password updated");
+      push({ type: 'success', title: 'Settings', message: 'Password updated', toast: false });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -151,6 +155,7 @@ export default function Settings() {
     try {
       await axios.patch(`${base_url}/settings/ai-model`, selectedModel, { withCredentials: true });
       success("AI model saved");
+      push({ type: 'success', title: 'Settings', message: `AI model set to ${selectedModel.name}`, toast: false });
     } catch (e) {
       error(e?.response?.data?.message || "Failed to save model");
     }
@@ -162,6 +167,7 @@ export default function Settings() {
     try {
       await axios.delete(`${base_url}/settings/account`, { withCredentials: true });
       success("Account deleted");
+      push({ type: 'success', title: 'Account', message: 'Your account was deleted', toast: false });
       navigate("/login");
     } catch (e) {
       error(e?.response?.data?.message || "Failed to delete account");

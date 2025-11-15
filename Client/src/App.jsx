@@ -16,6 +16,7 @@ import OAProgress from './pages/dashboard/OAProgress';
 import Community from './pages/dashboard/Community';
 
 import Settings from './pages/dashboard/Settings';
+import Notifications from './pages/dashboard/Notifications';
 
 import VerifyEmail from './pages/VerifyEmail';
 import Landing from './pages/Landing';
@@ -69,6 +70,7 @@ const AnimatedRoutes = ({ token }) => {
 
           {/* Settings */}
           <Route path="settings" element={<Settings />} />
+          <Route path="notifications" element={<Notifications />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

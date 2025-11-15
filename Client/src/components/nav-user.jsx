@@ -29,12 +29,15 @@ import {
 } from "@/components/ui/sidebar"
 import React, { useState } from "react";
 import axios from "axios";
+import { useNotification } from "@/components/ui/notification";
+import { Link } from "react-router-dom";
 
 export function NavUser({
   user
 }) {
   const base_url = import.meta.env.VITE_BACKEND_URL;
   const [loading, setLoading] = useState(false);
+  const { unread } = useNotification();
 
   const { isMobile } = useSidebar()
   const handleLogout = async () => {
@@ -93,9 +96,14 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-sidebar-border" />
             <DropdownMenuGroup className="bg-sidebar">
-              <DropdownMenuItem className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
-                <Bell />
-                Notifications
+              <DropdownMenuItem asChild className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
+                <Link to="/dashboard/notifications" className="flex items-center gap-2 w-full">
+                  <Bell />
+                  <span>Notifications</span>
+                  {unread > 0 && (
+                    <span className="ml-auto inline-flex h-2 w-2 rounded-full bg-red-500" aria-label={`${unread} unread notifications`} />
+                  )}
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator className="bg-sidebar-border" />

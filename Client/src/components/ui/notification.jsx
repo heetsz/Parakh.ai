@@ -6,10 +6,23 @@ const NotificationContext = createContext({
   notify: (_opts) => {},
   success: (_msg, _title) => {},
   error: (_msg, _title) => {},
+  // Inbox helpers
+  push: (_opts) => {},
+  inbox: [],
+  unread: 0,
+  markAllRead: () => {},
+  markRead: (_id) => {},
+  clearInbox: () => {},
 })
 
 export const NotificationProvider = ({ children }) => {
   const [items, setItems] = useState([])
+  const [inbox, setInbox] = useState(() => {
+    try {
+      const raw = localStorage.getItem('parakh_inbox')
+      return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+  })
 
   const remove = useCallback((id) => {
     setItems((prev) => prev.filter((i) => i.id !== id))
@@ -25,7 +38,32 @@ export const NotificationProvider = ({ children }) => {
   const success = useCallback((message, title = 'Success') => notify({ type: 'success', message, title }), [notify])
   const error = useCallback((message, title = 'Error') => notify({ type: 'error', message, title }), [notify])
 
-  const value = useMemo(() => ({ notify, success, error }), [notify, success, error])
+  // Persist inbox changes
+  const persist = useCallback((next) => {
+    setInbox(next)
+    try { localStorage.setItem('parakh_inbox', JSON.stringify(next)) } catch {}
+  }, [])
+
+  // Push to inbox and optionally toast
+  const push = useCallback(({ type = 'info', title = '', message = '', toast = true }) => {
+    const item = { id: Math.random().toString(36).slice(2), type, title, message, createdAt: Date.now(), read: false }
+    persist([item, ...inbox])
+    if (toast) notify({ type, title, message })
+  }, [inbox, notify, persist])
+
+  const markAllRead = useCallback(() => {
+    persist(inbox.map(i => ({ ...i, read: true })))
+  }, [inbox, persist])
+
+  const markRead = useCallback((id) => {
+    persist(inbox.map(i => i.id === id ? { ...i, read: true } : i))
+  }, [inbox, persist])
+
+  const clearInbox = useCallback(() => persist([]), [persist])
+
+  const unread = useMemo(() => inbox.filter(i => !i.read).length, [inbox])
+
+  const value = useMemo(() => ({ notify, success, error, push, inbox, unread, markAllRead, markRead, clearInbox }), [notify, success, error, push, inbox, unread, markAllRead, markRead, clearInbox])
 
   return (
     <NotificationContext.Provider value={value}>

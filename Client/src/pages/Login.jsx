@@ -15,10 +15,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ToastContainer, toast } from "react-toastify";
+import { useNotification } from "@/components/ui/notification";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginPage() {
       const base_url = import.meta.env.VITE_BACKEND_URL;
+      const { push } = useNotification();
 
       const [username, setUsername] = useState("");
       const [password, setPassword] = useState("");
@@ -37,12 +39,17 @@ export default function LoginPage() {
                         theme: "dark",
                   });
 
+                  // Add to notifications inbox
+                  push({ type: 'success', title: 'Logged in', message: `Welcome back, ${username || 'user'}!` });
+
                   setTimeout(() => window.location.reload(), 600);
             } catch (err) {
-                  toast.error(err.response?.data?.message || "Login failed", {
+                  const msg = err.response?.data?.message || "Login failed";
+                  toast.error(msg, {
                         position: "top-right",
                         theme: "dark",
                   });
+                  push({ type: 'error', title: 'Login failed', message: msg, toast: false });
             } finally {
                   setLoading(false);
             }

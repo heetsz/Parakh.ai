@@ -107,7 +107,7 @@ export function AppSidebar(props) {
               <SidebarMenuButton 
                 asChild 
                 tooltip="Settings"
-                className="text-sidebar-foreground border border-gray-700/50 bg-gray-800/40 hover:bg-[#DFFF00] hover:text-black hover:border-[#DFFF00]/50 transition-all duration-200 font-medium text-sm rounded-md"
+                className="text-red-500 border border-gray-700/50 bg-gray-800/40 hover:bg-[#DFFF00] hover:text-black hover:border-[#DFFF00]/50 transition-all duration-200 font-medium text-sm rounded-md"
               >
                 <Link to="/dashboard/settings">
                   <Settings className="h-4 w-4" />
