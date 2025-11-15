@@ -1,12 +1,14 @@
 // Basic offline-first service worker for Parakh.ai
 // Generated manually – extend with Workbox or vite-plugin-pwa for advanced features.
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `parakh-static-${CACHE_VERSION}`;
+const OFFLINE_URL = '/offline.html';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/manifest.json',
+  OFFLINE_URL,
   '/mainlogo.png',
   '/logo.png'
 ];
@@ -32,7 +34,14 @@ self.addEventListener('fetch', event => {
 
   if (isNavigation) {
     event.respondWith(
-      fetch(request).catch(() => caches.match('/index.html'))
+      fetch(request)
+        .then((res) => {
+          // Optionally update cache
+          const clone = res.clone();
+          caches.open(STATIC_CACHE).then(cache => cache.put('/', clone));
+          return res;
+        })
+        .catch(() => caches.match(OFFLINE_URL).then(res => res || caches.match('/index.html')))
     );
     return;
   }

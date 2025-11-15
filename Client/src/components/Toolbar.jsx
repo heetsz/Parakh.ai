@@ -11,6 +11,10 @@ import {
   Redo,
   Trash,
   Save,
+  Hand,
+  ZoomIn,
+  ZoomOut,
+  Maximize
 } from "lucide-react";
 
 export default function Toolbar({ setSelectedTool }) {
@@ -20,9 +24,9 @@ export default function Toolbar({ setSelectedTool }) {
   };
 
   return (
-    <div className=" w-full flex items-center gap-2 p-3 border-b bg-muted/30">
+    <div className="w-full flex items-center gap-2 p-2 sm:p-3 border-b bg-muted/30 overflow-x-auto">
 
-      <Button variant="outline" className="ml-10" onClick={() => chooseTool("pen")}>
+      <Button variant="outline" onClick={() => chooseTool("pen")}>
         <PenTool size={18} />
       </Button>
 
@@ -47,6 +51,20 @@ export default function Toolbar({ setSelectedTool }) {
       </Button>
 
       <Separator orientation="vertical" className="mx-2" />
+
+      <Button variant="outline" onClick={() => chooseTool("pan")}>
+        <Hand size={18} />
+      </Button>
+
+      <Button variant="outline" onClick={() => document.getElementById("zoom-out-btn").click()}>
+        <ZoomOut size={18} />
+      </Button>
+      <Button variant="outline" onClick={() => document.getElementById("zoom-in-btn").click()}>
+        <ZoomIn size={18} />
+      </Button>
+      <Button variant="outline" onClick={() => document.getElementById("fit-btn").click()}>
+        <Maximize size={18} />
+      </Button>
 
       <Button variant="outline" onClick={() =>
         document.getElementById("undo-btn").click()

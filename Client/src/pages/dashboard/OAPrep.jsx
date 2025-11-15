@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, XCircle, Trophy, Clock, Brain, AlertCircle, TrendingUp } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
 
@@ -739,6 +740,10 @@ export default function OAPrep() {
   if (step === "results" && results) {
     const timeTaken = quizStartTime ? Math.floor((Date.now() - quizStartTime) / 1000) : 0;
     
+    // Add this at the top of your component
+    const navigate = useNavigate();
+
+    // Then replace the results section with:
     return (
       <div className="p-6">
         <Card className="border-0 shadow-none">
@@ -895,7 +900,7 @@ export default function OAPrep() {
                 <Brain className="mr-2 h-4 w-4" />
                 Take Another Quiz
               </Button>
-              <Button onClick={() => window.location.href = '/dashboard/interviews'} className="flex-1">
+              <Button onClick={() => navigate('/dashboard/interviews')} className="flex-1">
                 Back to Dashboard
               </Button>
             </div>
