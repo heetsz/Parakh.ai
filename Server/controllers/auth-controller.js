@@ -171,14 +171,14 @@ export const verifyEmailCode = async (req, res) => {
             await foundUser.save();
 
             const token = jwt.sign({ userId: foundUser._id, username: foundUser.username }, process.env.ACCESS_TOKEN, {
-                  expiresIn: '1h'
+                  expiresIn: '24h'
             });
             const isProd = process.env.NODE_ENV === 'production';
             const cookieOptions = {
                   httpOnly: true,
                   secure: isProd, // required for cross-site cookies on HTTPS
                   sameSite: isProd ? 'none' : 'lax',
-                  maxAge: 60 * 60 * 1000,
+                  maxAge: 24 * 60 * 60 * 1000,
             };
             return res.cookie('token', token, cookieOptions).status(200).json({
                   message: "Email verified and user registered.",
@@ -221,7 +221,7 @@ export const login = async (req, res) => {
             }
 
             const token = jwt.sign({ userId: foundUser?._id, username: foundUser?.username }, process.env.ACCESS_TOKEN, {
-                  expiresIn: '1h'
+                  expiresIn: '24h'
             })
 
             const isProd = process.env.NODE_ENV === 'production';
@@ -229,7 +229,7 @@ export const login = async (req, res) => {
                   httpOnly: true,
                   secure: isProd,
                   sameSite: isProd ? 'none' : 'lax',
-                  maxAge: 60 * 60 * 1000,
+                  maxAge: 24 * 60 * 60 * 1000,
             };
 
             return res.cookie('token', token, cookieOptions).status(200).json({

@@ -100,13 +100,13 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-sidebar-border" />
-            <DropdownMenuGroup className="bg-sidebar">
-              <DropdownMenuItem asChild className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
-                <Link to="/dashboard/notifications" className="flex items-center gap-2 w-full">
+            <DropdownMenuGroup className=" cursor-pointer bg-sidebar">
+              <DropdownMenuItem asChild className="cursor-pointer text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200">
+                <Link to="/dashboard/notifications" className="flex items-center gap-2 w-full ">
                   <Bell />
                   <span>Notifications</span>
                   {unread > 0 && (
-                    <span className="ml-auto inline-flex h-2 w-2 rounded-full bg-red-500" aria-label={`${unread} unread notifications`} />
+                    <span className="ml-auto inline-flex h-2 w-2 rounded-full bg-red-500 " aria-label={`${unread} unread notifications`} />
                   )}
                 </Link>
               </DropdownMenuItem>

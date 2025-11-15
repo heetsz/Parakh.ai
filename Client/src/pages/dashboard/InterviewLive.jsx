@@ -583,8 +583,8 @@ export default function InterviewLive() {
 
       {/* Two Circle Area */}
       <div className="w-full max-w-5xl flex flex-col md:flex-row items-start md:items-center justify-center gap-8 md:gap-16 relative">
-        {/* YOUR CIRCLE */}
-        <div className="flex flex-col items-center gap-4 md:gap-6 w-full md:w-auto">
+        {/* YOUR CIRCLE - show on mobile only when you're speaking (!isMuted) or AI not speaking, always show on desktop */}
+        <div className={`flex-col items-center gap-4 md:gap-6 w-full md:w-auto ${!isMuted || !aiSpeaking ? 'flex' : 'hidden md:flex'}`}>
           <div className="relative">
             {/* circle container */}
             <div className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-full bg-linear-to-br from-gray-100 via-white to-gray-50 flex items-center justify-center overflow-hidden border-4 border-gray-200 shadow-2xl">
@@ -661,8 +661,8 @@ export default function InterviewLive() {
           )}
         </div>
 
-        {/* AI CIRCLE */}
-        <div className="flex flex-col items-center gap-4 md:gap-6 w-full md:w-auto">
+        {/* AI CIRCLE - show on mobile only when AI is speaking, always show on desktop */}
+        <div className={`flex-col items-center gap-4 md:gap-6 w-full md:w-auto ${aiSpeaking ? 'flex' : 'hidden md:flex'}`}>
           <div className="relative">
             <div className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-full bg-linear-to-br from-gray-200 via-gray-100 to-white flex items-center justify-center overflow-hidden border-4 border-gray-300 shadow-2xl">
               {/* AI avatar image (from selected model or fallback) - fill full circle */}
