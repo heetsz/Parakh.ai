@@ -23,6 +23,11 @@ async def synthesize_tts(groq_client, text: str, model: str = "playai-tts", voic
             audio_bytes = f.read()
         return audio_bytes, f"audio/{response_format}"
     except Exception as e:
+        # Check if it's a rate limit error
+        error_str = str(e).lower()
+        if "rate" in error_str and "limit" in error_str:
+            print("[TTS] Rate limit reached:", e)
+            raise Exception("RATE_LIMIT_EXCEEDED")
         # Let callers handle fallback (e.g., switch to DEFAULT_TTS_VOICE)
         print("[TTS] error:", e)
         raise

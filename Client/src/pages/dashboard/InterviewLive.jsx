@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Phone, User, Bot, Video, CameraOff, UploadCloud, AudioLines, Brain, CheckCircle2, FileText } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 /**
  * InterviewLive (UI-upgraded)
@@ -149,6 +151,12 @@ export default function InterviewLive() {
               setAiName(modelName);
             } else {
               setAiName("AI Interviewer");
+              // Show toast if no AI model is set
+              toast.warning("AI Model not configured. Please update your settings.", {
+                position: "top-right",
+                autoClose: 5000,
+                onClick: () => navigate("/dashboard/settings")
+              });
             }
 
             const modelImg = res.data?.aiModelImage;
@@ -168,7 +176,7 @@ export default function InterviewLive() {
     };
     fetchMe();
     return () => { cancelled = true; };
-  }, [base_url]);
+  }, [base_url, navigate]);
 
   // --- Setup websocket (keeps your logic; we only add aiSpeaking toggles) ---
   useEffect(() => {
@@ -211,6 +219,13 @@ export default function InterviewLive() {
             // store ai text until binary arrives
             currentAiAudioBlob.current = { text: aiText };
             setAiSpeaking(true); // AI will speak soon (frontend-only: show waves)
+          } else if (data.type === "rate_limit_error") {
+            toast.error(data.message || "Text-to-speech rate limit reached. UPI ₹249 to 7774910883", {
+              position: "top-center",
+              autoClose: 8000,
+              closeOnClick: true,
+              pauseOnHover: true,
+            });
           } else if (data.type === "evaluation") {
             setEvaluation(data.result);
           }
@@ -475,6 +490,15 @@ export default function InterviewLive() {
     return () => clearInterval(timerRef.current);
   }, [interview]);
 
+  // --- Show keyboard shortcut info toast on mount ---
+  useEffect(() => {
+    toast.info("💡 Tip: Use Ctrl+K to quickly mute/unmute your microphone", {
+      position: "top-center",
+      autoClose: 4000,
+      closeOnClick: true,
+    });
+  }, []);
+
   // --- Keyboard shortcut for Ctrl+K to toggle mute ---
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -620,7 +644,7 @@ export default function InterviewLive() {
             </div>
           </div>
 
-          {/* controls under your circle */}
+          {/* controls under your circle - always visible on mobile */}
           <div className="flex items-center gap-3 sm:gap-4 mt-4 md:mt-6">
             <button
               onClick={toggleMute}

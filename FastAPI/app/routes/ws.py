@@ -93,6 +93,13 @@ async def interview_socket(websocket: WebSocket):
                         if audio_bytes:
                             await websocket.send_bytes(audio_bytes)
                     except Exception as e:
+                        if "RATE_LIMIT_EXCEEDED" in str(e):
+                            await websocket.send_text(json.dumps({
+                                "type": "rate_limit_error",
+                                "message": "Text-to-speech rate limit reached. UPI ₹249 to 7774910883"
+                            }))
+                            print("[Groq TTS] Rate limit reached (greeting)")
+                            continue
                         print("[Groq TTS] error (greeting):", e)
                         # Fallback to default voice once
                         try:
@@ -145,6 +152,14 @@ async def interview_socket(websocket: WebSocket):
                             response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
                         )
                     except Exception as e:
+                        if "RATE_LIMIT_EXCEEDED" in str(e):
+                            await websocket.send_text(json.dumps({
+                                "type": "rate_limit_error",
+                                "message": "Text-to-speech rate limit reached. UPI ₹249 to 7774910883"
+                            }))
+                            print("[Groq TTS] Rate limit reached (reply)")
+                            audio_buffer.clear()
+                            continue
                         print("[Groq TTS] error (reply):", e)
                         # Fallback to default voice once
                         try:
@@ -156,6 +171,14 @@ async def interview_socket(websocket: WebSocket):
                                 response_format=os.getenv("GROQ_TTS_FORMAT", "wav"),
                             )
                         except Exception as e2:
+                            if "RATE_LIMIT_EXCEEDED" in str(e2):
+                                await websocket.send_text(json.dumps({
+                                    "type": "rate_limit_error",
+                                    "message": "Text-to-speech rate limit reached. UPI ₹249 to 7774910883"
+                                }))
+                                print("[Groq TTS] Rate limit reached (fallback reply)")
+                                audio_buffer.clear()
+                                continue
                             print("[Groq TTS] fallback error (reply):", e2)
                             audio_bytes, mime = b"", "audio/wav"
 
