@@ -36,7 +36,7 @@ const Interviews = () => {
   const base_url = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // true until data + all images loaded
   const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
@@ -68,25 +68,22 @@ const Interviews = () => {
 
   const fetchInterviews = async () => {
     setLoading(true);
-  // Ensure skeletons are visible even on very fast responses
-  const minLoadTime = new Promise(resolve => setTimeout(resolve, 500));
     
     try {
       const res = await axios.get(`${base_url}/interviews`, { withCredentials: true });
       const list = res.data || [];
-      
-      await minLoadTime;
       setInterviews(list);
       setError(null);
-      // Precompute images for cards
-      // computeImages(list);
+      // If there are no interviews we can end loading immediately
+      if (list.length === 0) {
+        setLoading(false);
+      }
     } catch (err) {
       console.error("Failed to fetch interviews:", err?.response?.data || err);
-      await minLoadTime;
       setError("Failed to load interviews. Please login.");
       setInterviews([]);
-    } finally {
       setLoading(false);
+    } finally {
       setInitialLoad(false);
     }
   };
@@ -151,6 +148,32 @@ const Interviews = () => {
       const fallback = Object.fromEntries((list || []).map((iv) => [iv._id, "logo.png"]));
       setImageMap(fallback);
     }
+  };
+
+  // Track image loading progress
+  const [imagesLoaded, setImagesLoaded] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
+
+  // When interviews list changes, reset image tracking (only if we have interviews)
+  useEffect(() => {
+    if (interviews.length > 0) {
+      setImagesLoaded(0);
+      setImagesReady(false);
+      // keep loading true until all images load
+      setLoading(true);
+    }
+  }, [interviews]);
+
+  // Increment helper for image load/error
+  const handleImageLoad = () => {
+    setImagesLoaded(prev => {
+      const next = prev + 1;
+      if (next === interviews.length) {
+        setImagesReady(true);
+        setLoading(false);
+      }
+      return next;
+    });
   };
 
   const handleJoinInterview = (interviewId) => {
@@ -265,6 +288,7 @@ const Interviews = () => {
         </div>
       )}
 
+      {/* Show cards only when not loading and not initialLoad and imagesReady */}
       <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-6">
         {interviews.map((interview) => (
           <Card
@@ -277,7 +301,11 @@ const Interviews = () => {
                 src={getImageByType(interview.role)}
                 alt={interview.role}
                 className="object-contain h-32 w-auto"
-                onError={(e) => (e.currentTarget.src = "/logo.png")}
+                onLoad={handleImageLoad}
+                onError={(e) => {
+                  e.currentTarget.src = "/logo.png";
+                  handleImageLoad();
+                }}
               />
             </div>
 

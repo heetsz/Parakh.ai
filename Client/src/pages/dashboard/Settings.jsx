@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNotification } from "@/components/ui/notification";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Trash2, CheckCircle2, Circle } from "lucide-react";
 
 export default function Settings() {
   const base_url = import.meta.env.VITE_BACKEND_URL || "/api";
@@ -24,6 +26,8 @@ export default function Settings() {
   const [models, setModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState({ name: "", image: "" });
   const fileRef = useRef(null);
+  const [avatarLoading, setAvatarLoading] = useState(true);
+  const [modelImageLoaded, setModelImageLoaded] = useState({});
 
   useEffect(() => {
     const init = async () => {
@@ -76,6 +80,7 @@ export default function Settings() {
         setName(userData?.name || "");
         setEmail(userData?.email || "");
         setAvatar(userData?.image || "");
+        setAvatarLoading(!!userData?.image);
         setSelectedModel({ name: userData?.aiModelName || "", image: userData?.aiModelImage || "" });
         
       } catch (e) {
@@ -182,15 +187,27 @@ export default function Settings() {
           <p className="text-sm text-gray-500">Manage your profile, security, and AI preferences.</p>
         </div>
 
-        {/* Glassmorphic wrapper */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Layout wrapper */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Profile card */}
           <Card className="col-span-1 border-gray-200 bg-white/60 backdrop-blur-xl shadow-md">
             <CardContent className="p-6">
               <div className="flex flex-col items-center gap-4">
                 <div className="relative h-32 w-32 overflow-hidden rounded-full border border-gray-200 shadow-sm">
                   {avatar ? (
-                    <img src={avatar} alt="avatar" className="h-full w-full object-cover" />
+                    <>
+                      {avatarLoading && (
+                        <Skeleton className="absolute inset-0 rounded-full" />
+                      )}
+                      <img
+                        src={avatar}
+                        alt="avatar"
+                        loading="lazy"
+                        className={`h-full w-full object-cover transition-opacity duration-300 ${avatarLoading ? 'opacity-0' : 'opacity-100'}`}
+                        onLoad={() => setAvatarLoading(false)}
+                        onError={() => setAvatarLoading(false)}
+                      />
+                    </>
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">No Image</div>
                   )}
@@ -198,43 +215,42 @@ export default function Settings() {
                 <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} className="hidden" />
                 <Button onClick={onPickFile} className="bg-[#DFFF00] text-black hover:bg-[#c7e600]">Change photo</Button>
 
-                <div className="mt-2 w-full space-y-2">
+                <div className="mt-4 w-full space-y-1.5">
                   <Label htmlFor="name">Name</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="bg-white/70" />
-                    <Button onClick={onSaveName} className="bg-[#DFFF00] text-black hover:bg-[#c7e600]">Save</Button>
+                    <Button onClick={onSaveName} className="bg-[#DFFF00] text-black hover:bg-[#c7e600] shrink-0">Save</Button>
                   </div>
                 </div>
 
-                <div className="mt-2 w-full space-y-2">
+                <div className="mt-3 w-full space-y-1.5">
                   <Label htmlFor="email">Email</Label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-white/70" />
-                    <Button onClick={onSaveEmail} className="bg-[#DFFF00] text-black hover:bg-[#c7e600]">Save</Button>
+                    <Button onClick={onSaveEmail} className="bg-[#DFFF00] text-black hover:bg-[#c7e600] shrink-0">Save</Button>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Security card */}
-          <Card className="col-span-1 border-gray-200 bg-white/60 backdrop-blur-xl shadow-md">
-            <CardContent className="p-6">
-              <div className="space-y-3">
-                <div>
-                  <Label>Current password</Label>
-                  <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-white/70" />
-                </div>
-                <div>
-                  <Label>New password</Label>
-                  <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-white/70" />
-                </div>
-                <div>
-                  <Label>Confirm new password</Label>
-                  <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-white/70" />
-                </div>
-                <div>
-                  <Button onClick={onSavePassword} className="mt-1 w-full bg-[#DFFF00] text-black hover:bg-[#c7e600]">Update password</Button>
+                {/* Change Password section */}
+                <div className="mt-6 w-full pt-6 border-t border-gray-200">
+                  <div className="text-sm font-medium text-gray-700 mb-3">Change password</div>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="currentPassword">Current password</Label>
+                      <Input id="currentPassword" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-white/70" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="newPassword">New password</Label>
+                      <Input id="newPassword" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-white/70" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="confirmPassword">Confirm new password</Label>
+                      <Input id="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-white/70" />
+                    </div>
+                    <div>
+                      <Button onClick={onSavePassword} className="mt-1 w-full bg-[#DFFF00] text-black hover:bg-[#c7e600]">Update password</Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -247,7 +263,7 @@ export default function Settings() {
                 <div className="text-sm font-medium text-gray-700">Preferred AI Model</div>
                 <div className="text-xs text-gray-500">Choose the interviewer model used in your sessions.</div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
                 {models.map((m) => {
                   const active = selectedModel.name === m.name;
                   return (
@@ -255,15 +271,32 @@ export default function Settings() {
                       type="button"
                       key={m.name}
                       onClick={() => setSelectedModel({ name: m.name, image: m.image })}
-                      className={`rounded-xl border p-3 text-left transition ${
-                        active ? 'border-[#DFFF00] bg-[#ffffcc] shadow-[0_0_0_3px_rgba(223,255,0,0.15)]' : 'border-gray-200 bg-white/70 hover:bg-white'
+                      className={`w-full rounded-lg border p-2.5 text-left transition bg-white/70 hover:bg-white ${
+                        active ? 'border-[#DFFF00] ring-2 ring-[#DFFF00]/30' : 'border-gray-200'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 overflow-hidden rounded-md border border-gray-200">
-                          <img src={m.image} alt={m.name} className="h-full w-full object-cover" />
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative h-10 w-10 overflow-hidden rounded-md border border-gray-200 shrink-0">
+                            {!modelImageLoaded[m.name] && <Skeleton className="absolute inset-0" />}
+                            <img
+                              src={m.image}
+                              alt={m.name}
+                              loading="lazy"
+                              className={`h-full w-full object-cover transition-opacity duration-300 ${!modelImageLoaded[m.name] ? 'opacity-0' : 'opacity-100'}`}
+                              onLoad={() => setModelImageLoaded((prev) => ({ ...prev, [m.name]: true }))}
+                              onError={() => setModelImageLoaded((prev) => ({ ...prev, [m.name]: true }))}
+                            />
+                          </div>
+                          <div className="text-sm font-medium text-gray-800 truncate">{m.name}</div>
                         </div>
-                        <div className="text-sm font-medium text-gray-800">{m.name}</div>
+                        <div className="shrink-0">
+                          {active ? (
+                            <CheckCircle2 className="h-5 w-5 text-[#b5d400]" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-gray-300" />
+                          )}
+                        </div>
                       </div>
                     </button>
                   );
@@ -275,21 +308,15 @@ export default function Settings() {
             </CardContent>
           </Card>
         </div>
-        {/* Danger zone */}
-        <div className="mt-6">
-          <Card className="border-red-200 bg-white/60 backdrop-blur-xl shadow-md">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-sm font-semibold text-red-700">Delete account</div>
-                  <div className="text-xs text-gray-600 max-w-xl mt-1">
-                    This action permanently deletes your profile, interviews, posts, and comments. This cannot be undone.
-                  </div>
-                </div>
-                <Button variant="destructive" onClick={onDeleteAccount}>Delete account</Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Delete account - single dark red button */}
+        <div className="mt-6 flex items-center justify-end">
+          <Button
+            onClick={onDeleteAccount}
+            className="bg-red-700 hover:bg-red-800 text-white flex items-center gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete account
+          </Button>
         </div>
       </div>
     </div>

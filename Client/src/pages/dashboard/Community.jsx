@@ -16,7 +16,7 @@ const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_PRESET_NAME;
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // overall loading: posts data + images
   const [isCreating, setIsCreating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -37,6 +37,10 @@ export default function Community() {
   // File upload
   const [uploading, setUploading] = useState(false);
   const imageInputRef = useRef(null);
+  // Image load tracking
+  const [totalImages, setTotalImages] = useState(0);
+  const [loadedImages, setLoadedImages] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
   
   useEffect(() => {
     fetchCurrentUser();
@@ -65,10 +69,23 @@ export default function Community() {
         return (b.likes?.length || 0) - (a.likes?.length || 0);
       });
       setPosts(sortedPosts);
+      // Count images (author avatar + image attachments)
+      const count = sortedPosts.reduce((acc, p) => {
+        const authorImg = p.author?.image ? 1 : 0;
+        const attachImgs = (p.attachments || []).filter(a => a.type === 'image').length;
+        return acc + authorImg + attachImgs;
+      }, 0);
+      setTotalImages(count);
+      if (count === 0) {
+        setImagesReady(true);
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
-      setLoading(false);
+      // Do not mark loading false yet; wait for images unless none
+      if (totalImages === 0) {
+        setLoading(false);
+      }
     }
   };
   
@@ -272,48 +289,88 @@ export default function Community() {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <p className="text-muted-foreground">Loading community posts...</p>
-      </div>
-    );
-  }
+  // Image load handler for avatars & attachments
+  const handleImageLoad = () => {
+    setLoadedImages(prev => {
+      const next = prev + 1;
+      if (next === totalImages) {
+        setImagesReady(true);
+        setLoading(false);
+      }
+      return next;
+    });
+  };
+
+  const handleImageError = () => {
+    // Treat error as loaded to avoid blocking
+    handleImageLoad();
+  };
+
+  const showSkeleton = loading;
 
   return (
     <div className="p-6 w-full space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      {/* <div className="flex items-center justify-between"> */}
+        {/* <div>
           <h1 className="ml-4 text-4xl font-bold tracking-tight bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Community</h1>
           <p className="ml-4 text-muted-foreground">Connect and share with the community</p>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
 
       {/* Posts Feed */}
-      <div className="space-y-4 w-full">
+      {showSkeleton && (
+        <div className="space-y-2 w-full">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="w-full">
+              <CardHeader className="pb-2">
+                <div className="flex items-start gap-3">
+                  <div className="h-12 w-12 rounded-full bg-muted animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+                    <div className="h-3 w-28 bg-muted rounded animate-pulse" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="h-4 w-full bg-muted rounded animate-pulse" />
+                <div className="h-4 w-5/6 bg-muted rounded animate-pulse" />
+                <div className="h-4 w-2/3 bg-muted rounded animate-pulse" />
+                <div className="h-48 w-full bg-muted rounded animate-pulse" />
+              </CardContent>
+              <CardFooter className="pt-0 flex gap-4">
+                <div className="h-8 w-20 bg-muted rounded animate-pulse" />
+                <div className="h-8 w-20 bg-muted rounded animate-pulse" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+      <div className={`w-full ${showSkeleton ? 'hidden' : 'space-y-2'}`}>        
         {posts.map((post) => (
           <Card key={post._id} className="w-full">
-            <CardHeader>
+            <CardHeader className="pb-1">
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    {post.author?.image ? (
-                      <AvatarImage src={post.author.image} alt={post.author?.name || "User"} />
-                    ) : null}
-                    <AvatarFallback>
-                      {post.author?.name?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-base">{post.author?.name || "Anonymous"}</CardTitle>
-                    <CardDescription>
-                      {new Date(post.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </CardDescription>
+                <div className="flex items-center">
+                  <div className="flex items-center gap-3 bg-[#DFFF00] dark:bg-[#DFFF00] text-black rounded-md px-3 py-2 shadow-sm border border-black/10">
+                    <Avatar className="ring-2 ring-black/20">
+                      {post.author?.image ? (
+                        <AvatarImage src={post.author.image} alt={post.author?.name || "User"} onLoad={handleImageLoad} onError={handleImageError} />
+                      ) : null}
+                      <AvatarFallback className="bg-black/10 text-black">
+                        {post.author?.name?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-0.5">
+                      <CardTitle className="text-sm font-semibold leading-tight text-black">{post.author?.name || "Anonymous"}</CardTitle>
+                      <p className="text-[11px] font-mono tracking-tight text-black/70">
+                        {new Date(post.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 {currentUserId === post.author?._id && (
@@ -321,6 +378,7 @@ export default function Community() {
                     variant="ghost"
                     size="icon"
                     onClick={() => confirmDelete(post._id)}
+                    className="ml-3 mt-1 hover:bg-[#DFFF00]/30 cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -328,7 +386,7 @@ export default function Community() {
               </div>
             </CardHeader>
             
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 pt-2">
               <p className="text-sm whitespace-pre-wrap">{post.content}</p>
               
               {/* Attachments */}
@@ -341,6 +399,8 @@ export default function Community() {
                           src={attachment.url}
                           alt="attachment"
                           className="rounded-lg max-h-96 w-full object-cover"
+                          onLoad={handleImageLoad}
+                          onError={handleImageError}
                         />
                       )}
                       {attachment.type === 'link' && (
@@ -397,7 +457,7 @@ export default function Community() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleLike(post._id)}
-                  className="gap-2"
+                  className="gap-2 cursor-pointer"
                 >
                   <Heart className={`h-4 w-4 ${post.likes?.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
                   {post.likes?.length || 0}
@@ -405,7 +465,7 @@ export default function Community() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="gap-2"
+                  className="gap-2 cursor-pointer"
                   onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })}
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -434,7 +494,7 @@ export default function Community() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive cursor-pointer"
                           onClick={() => handleDeleteComment(post._id, comment._id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -465,6 +525,7 @@ export default function Community() {
                   <Button
                     size="icon"
                     onClick={() => handleComment(post._id)}
+                    className="cursor-pointer"
                   >
                     <Send className="h-4 w-4" />
                   </Button>
@@ -480,7 +541,7 @@ export default function Community() {
         <DialogTrigger asChild>
           <Button
             size="lg"
-            className="fixed bottom-8 right-8 rounded-full shadow-lg h-14 w-14 z-50"
+            className="fixed bottom-8 right-8 rounded-full shadow-lg h-14 w-14 z-50 cursor-pointer"
           >
             <Plus className="h-6 w-6" />
           </Button>
@@ -496,7 +557,7 @@ export default function Community() {
               placeholder="What's on your mind?"
               value={newPost.content}
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-              className="min-h-[150px] resize-none"
+              className="min-h-[150px] resize-none bg-[#DFFF00] dark:bg-[#DFFF00] text-black placeholder:text-black/60 border-black/20 focus-visible:ring-0 focus-visible:border-black"
             />
             
             {/* Attachments */}
@@ -529,6 +590,7 @@ export default function Community() {
                 size="sm"
                 onClick={() => imageInputRef.current?.click()}
                 disabled={uploading}
+                className="cursor-pointer"
               >
                 <Image className="h-4 w-4 mr-2" />
                 {uploading ? 'Uploading...' : 'Upload Image'}
@@ -540,6 +602,7 @@ export default function Community() {
                 size="sm"
                 onClick={addLinkAttachment}
                 disabled={uploading}
+                className="cursor-pointer"
               >
                 <Link className="h-4 w-4 mr-2" />
                 Add Link
@@ -550,10 +613,10 @@ export default function Community() {
               Upload images directly or add links to external files (PDFs, documents, etc.)
             </p>
             
-            <Button
+              <Button
               onClick={handleCreatePost}
               disabled={!newPost.content.trim() || isCreating}
-              className="w-full"
+                className="w-full bg-black text-[#DFFF00] hover:bg-black/80 cursor-pointer"
             >
               {isCreating ? "Posting..." : "Post"}
             </Button>
@@ -577,12 +640,14 @@ export default function Community() {
                 setDeleteDialogOpen(false);
                 setPostToDelete(null);
               }}
+              className="cursor-pointer"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeletePost}
+              className="cursor-pointer"
             >
               Delete
             </Button>

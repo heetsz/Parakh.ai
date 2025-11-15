@@ -154,10 +154,10 @@ export default function InterviewProgress() {
   return (
     <div className="p-6 space-y-6 max-w-[100vw] overflow-x-hidden">
       {/* Header */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight mb-2">Interview Performance Dashboard</h1>
         <p className="text-muted-foreground">Track your progress and identify areas for improvement</p>
-      </div>
+      </div> */}
 
       {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

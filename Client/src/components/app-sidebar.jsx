@@ -89,7 +89,7 @@ export function AppSidebar(props) {
         ],
       },
       { title: "Community", url: "/dashboard/community", icon: MessageSquare },
-      { title: "WhiteBoard", url: "/dashboard/system-design", icon: GalleryVerticalEnd },
+      { title: "WhiteBoard", url: "/dashboard/whiteboard", icon: GalleryVerticalEnd },
     ],
   }
 

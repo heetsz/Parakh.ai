@@ -8,7 +8,7 @@ export default function Progress() {
   return (
     <div className="p-6 space-y-6">
       {/* HEADER */}
-      <div className="flex items-center justify-between">
+      {/* <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Your Progress Dashboard
@@ -19,7 +19,7 @@ export default function Progress() {
         </div>
         <Award className="w-16 h-16 text-yellow-500" />
       </div>
-
+ */}
       {/* ----------------------- MAIN TABS ----------------------- */}
       <Tabs defaultValue="interview" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">

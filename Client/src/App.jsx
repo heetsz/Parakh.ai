@@ -65,7 +65,7 @@ const AnimatedRoutes = ({ token }) => {
 
           {/* Additional Modules */}
           <Route path="oa-prep" element={<OAPrep />} />
-          <Route path="system-design" element={<SystemDesignBoard />} />
+          <Route path="whiteboard" element={<SystemDesignBoard />} />
 
           {/* Settings */}
           <Route path="settings" element={<Settings />} />

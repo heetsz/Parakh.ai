@@ -4,7 +4,8 @@ import axios from "axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Phone, User, Bot, Video, CameraOff } from "lucide-react";
+import { Mic, MicOff, Phone, User, Bot, Video, CameraOff, UploadCloud, AudioLines, Brain, CheckCircle2, FileText } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 /**
  * InterviewLive (UI-upgraded)
@@ -38,6 +39,27 @@ export default function InterviewLive() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [evaluation, setEvaluation] = useState(null);
+  const [ending, setEnding] = useState(false);
+  const [endStepIndex, setEndStepIndex] = useState(0);
+  const [endProgress, setEndProgress] = useState(0);
+  const [backendDone, setBackendDone] = useState(false);
+  const [tipIndex, setTipIndex] = useState(0);
+
+  const endSteps = [
+    { key: "upload", label: "Saving your last responses" },
+    { key: "transcribe", label: "Generating accurate transcript" },
+    { key: "analyze", label: "Analyzing answers and patterns" },
+    { key: "score", label: "Scoring performance" },
+    { key: "prepare", label: "Preparing your progress report" },
+  ];
+
+  const endTips = [
+    "Tip: Structure answers with STAR (Situation, Task, Action, Result)",
+    "Tip: Keep answers concise and measurable",
+    "Tip: Mention trade-offs when discussing decisions",
+    "Tip: Clarify requirements before diving into solutions",
+    "Tip: Speak at a steady, confident pace",
+  ];
   const [userTranscript, setUserTranscript] = useState(""); // live, non-persistent
   const [aiTranscript, setAiTranscript] = useState(""); // live, non-persistent
   const currentUserAudioChunks = useRef([]);
@@ -388,6 +410,23 @@ export default function InterviewLive() {
 
   // --- end call (keeps existing logic) ---
   const endCall = async () => {
+    if (ending) return;
+    setEnding(true);
+    setEndStepIndex(0);
+    setEndProgress(4);
+    setBackendDone(false);
+
+    // Animate steps and progress while backend finishes
+    const stepTimer = setInterval(() => {
+      setEndStepIndex((i) => Math.min(i + 1, endSteps.length - 1));
+    }, 1200);
+    const progressTimer = setInterval(() => {
+      setEndProgress((p) => Math.min(p + 3, 95));
+    }, 120);
+    const tipsTimer = setInterval(() => {
+      setTipIndex((t) => (t + 1) % endTips.length);
+    }, 1400);
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: "end_call" }));
       await new Promise((resolve) => setTimeout(resolve, 1200));
@@ -395,16 +434,35 @@ export default function InterviewLive() {
 
     try {
       await axios.post(`${base_url}/interviews/${id}/complete`, {}, { withCredentials: true });
+      setBackendDone(true);
     } catch (error) {
       console.error("Failed to complete interview:", error);
+      setBackendDone(true);
     }
 
     // stop media
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
     }
+    // Wait for animation to reach end or a short grace period, then navigate
+    const finalize = () => {
+      clearInterval(stepTimer);
+      clearInterval(progressTimer);
+      clearInterval(tipsTimer);
+      setEndProgress(100);
+      setTimeout(() => navigate("/dashboard/progress"), 300);
+    };
 
-    navigate("/dashboard/progress");
+    const checkReady = () => {
+      if (backendDone && endStepIndex >= endSteps.length - 1) {
+        finalize();
+      } else {
+        // Fallback: ensure we don't hang if steps take longer
+        setTimeout(() => finalize(), 2500);
+      }
+    };
+    // Give a small breathing room before navigating
+    setTimeout(checkReady, 700);
   };
 
   // --- timer start/stop (UI-only) ---
@@ -564,6 +622,7 @@ export default function InterviewLive() {
             <button
               onClick={toggleMute}
               className="rounded-full w-16 h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
+              disabled={ending}
               title={isMuted ? "Unmute / Start speaking (Ctrl+K)" : "Mute / Stop speaking (Ctrl+K)"}
             >
               {isMuted ? <MicOff className="h-7 w-7 text-gray-600" /> : <Mic className="h-7 w-7 text-[#DFFF00]" />}
@@ -572,6 +631,7 @@ export default function InterviewLive() {
             <button
               onClick={toggleCamera}
               className="rounded-full w-16 h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
+              disabled={ending}
               title={cameraOn ? "Turn camera off" : "Turn camera on"}
             >
               {cameraOn ? <Video className="h-7 w-7 text-gray-600" /> : <CameraOff className="h-7 w-7 text-gray-600" />}
@@ -580,6 +640,7 @@ export default function InterviewLive() {
             <button
               onClick={endCall}
               className="rounded-full w-16 h-16 flex items-center justify-center bg-linear-to-br from-red-500 to-red-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              disabled={ending}
               title="End call"
             >
               <Phone className="h-7 w-7 text-white rotate-135" />
@@ -667,6 +728,56 @@ export default function InterviewLive() {
 
       {/* hidden audio player for AI (kept) */}
       <audio ref={audioPlayerRef} style={{ display: "none" }} />
+
+      {/* Ending overlay */}
+      {ending && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200 w-full max-w-xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Spinner className="size-5 text-gray-700" />
+                <div className="text-sm font-semibold text-gray-900">Finalizing your interview</div>
+              </div>
+              <div className="text-xs text-gray-500">This takes ~5–10 seconds</div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden mb-5 border border-gray-200">
+              <div
+                className="h-full bg-[#DFFF00] transition-all duration-200"
+                style={{ width: `${endProgress}%` }}
+              />
+            </div>
+
+            {/* Stepper */}
+            <div className="space-y-3 mb-5">
+              {endSteps.map((s, idx) => {
+                const done = idx < endStepIndex;
+                const active = idx === endStepIndex;
+                return (
+                  <div key={s.key} className="flex items-center gap-3">
+                    <div className={`size-6 rounded-full flex items-center justify-center border ${done ? 'bg-green-100 border-green-200' : active ? 'bg-yellow-100 border-yellow-200' : 'bg-gray-100 border-gray-200'}`}>
+                      {done ? (
+                        <CheckCircle2 className="size-4 text-green-600" />
+                      ) : active ? (
+                        <Spinner className="size-4 text-yellow-600" />
+                      ) : (
+                        <FileText className="size-4 text-gray-500" />
+                      )}
+                    </div>
+                    <div className={`text-sm ${done ? 'text-gray-700' : active ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>{s.label}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Rotating tip */}
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
+              {endTips[tipIndex]}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

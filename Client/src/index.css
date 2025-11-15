@@ -319,6 +319,16 @@ body {
   letter-spacing: var(--tracking-normal);
 }
 
+/* Global button cursor behavior */
+button:hover,
+[role="button"]:hover {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed !important;
+}
+
 /* Dark theme with video background */
 .hero-with-video {
   background: #000000;
