@@ -156,7 +156,6 @@ export default function InterviewLive() {
 
     ws.onopen = () => {
       setSocket(ws);
-      setIsConnected(true);
       const contextData = {
         title: interview.title,
         role: interview.role,
@@ -223,11 +222,9 @@ export default function InterviewLive() {
 
     ws.onerror = (err) => {
       console.error("WebSocket error", err);
-      setIsConnected(false);
     };
 
     ws.onclose = () => {
-      setIsConnected(false);
     };
 
     return () => {

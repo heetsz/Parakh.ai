@@ -23,8 +23,9 @@ async def synthesize_tts(groq_client, text: str, model: str = "playai-tts", voic
             audio_bytes = f.read()
         return audio_bytes, f"audio/{response_format}"
     except Exception as e:
+        # Let callers handle fallback (e.g., switch to DEFAULT_TTS_VOICE)
         print("[TTS] error:", e)
-        return b"", f"audio/{response_format}"
+        raise
     finally:
         if tmp_path:
             try:
