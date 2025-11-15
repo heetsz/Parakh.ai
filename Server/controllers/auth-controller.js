@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
-import sendMail from "../config/sendMail.js";
+// import sendMail from "../config/sendMail.js";
+import sendMail from "../config/sendEMail.js";
 
 export const registration = async (req, res) => {
       try {

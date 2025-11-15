@@ -65,10 +65,23 @@ export default function VerifyEmailPage() {
       >
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-semibold text-white">
-            Verify Email
+            Enter the 6-digit code sent to your email
           </CardTitle>
           <CardDescription className="text-gray-400">
-            Enter the 6-digit code sent to your email
+            {/* Enter the 6-digit code sent to your email.<br /> */}
+            <span className="text-xs text-gray-500">Didn’t see it? Check your spam / junk folder. You can also try resending after a minute.</span>
+            <br />
+            <span className="text-xs text-gray-500 block mt-1">
+              Checking <span className="font-medium text-gray-300">{email}</span>?{' '}
+              <a
+                href="https://mail.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-gray-300"
+              >
+                Open Gmail
+              </a>
+            </span>
           </CardDescription>
         </CardHeader>
 
