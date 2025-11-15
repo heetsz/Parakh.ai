@@ -48,7 +48,12 @@ export default function RegisterPage() {
 
                   if (res.status === 200) {
                         navigate("/verify-email", { state: { email } });
-                        push({ type: 'success', title: 'Registration', message: 'Account created. Verify your email to continue.' });
+                        push({ 
+                              type: 'success', 
+                              title: 'Welcome to Parakh', 
+                              message: 'Account created. Verify your email, then personalize your settings.',
+                              action: { label: 'Complete settings', href: '/dashboard/settings' },
+                        });
                   }
             } catch (err) {
                   const msg = err.response?.data?.message || "Something went wrong";

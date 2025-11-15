@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Bell, Check, Trash2 } from 'lucide-react'
 import { useNotification } from '@/components/ui/notification'
+import { Link } from 'react-router-dom'
 
 export default function Notifications() {
   const { inbox, unread, markAllRead, clearInbox, markRead } = useNotification()
@@ -45,13 +46,20 @@ export default function Notifications() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0 text-sm">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex-1 text-muted-foreground">{n.message}</div>
-                  {!n.read && (
-                    <Button size="sm" variant="secondary" onClick={() => markRead(n.id)}>
-                      <Check className="h-4 w-4 mr-1" /> Read
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    {n.action?.href && (
+                      <Button asChild size="sm" variant="outline">
+                        <Link to={n.action.href}>{n.action.label || 'Open'}</Link>
+                      </Button>
+                    )}
+                    {!n.read && (
+                      <Button size="sm" variant="secondary" onClick={() => markRead(n.id)}>
+                        <Check className="h-4 w-4 mr-1" /> Read
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

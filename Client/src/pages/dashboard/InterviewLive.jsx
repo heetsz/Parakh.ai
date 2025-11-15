@@ -562,10 +562,13 @@ export default function InterviewLive() {
 
   // --- UI rendering (new professional layout) ---
   return (
-    <div className="h-screen overflow-hidden bg-linear-to-br from-gray-50 via-white to-gray-100 flex flex-col items-center justify-start p-6 gap-6">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 flex flex-col items-center justify-start p-3 sm:p-4 md:p-6 gap-4 md:gap-6">
       {/* Top-right timer + status */}
-      <div className="w-full flex justify-end items-center">
-        <div className="flex items-center gap-3">
+      <div className="w-full flex justify-between md:justify-end items-center">
+        <div className="text-xs sm:text-sm text-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-white/80 backdrop-blur-md shadow-sm border border-gray-200 md:hidden">
+          {formatTimer(timerSeconds)}
+        </div>
+        <div className="hidden md:flex items-center gap-3">
           <div className="text-sm text-gray-700 px-4 py-2 rounded-lg bg-white/80 backdrop-blur-md shadow-sm border border-gray-200">
             {interview?.role ?? "Interview"}
           </div>
@@ -579,12 +582,12 @@ export default function InterviewLive() {
       </div>
 
       {/* Two Circle Area */}
-      <div className="w-full max-w-5xl flex items-start justify-center gap-16 relative">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row items-start md:items-center justify-center gap-8 md:gap-16 relative">
         {/* YOUR CIRCLE */}
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-4 md:gap-6 w-full md:w-auto">
           <div className="relative">
             {/* circle container */}
-            <div className="w-72 h-72 rounded-full bg-linear-to-br from-gray-100 via-white to-gray-50 flex items-center justify-center overflow-hidden border-4 border-gray-200 shadow-2xl">
+            <div className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-full bg-linear-to-br from-gray-100 via-white to-gray-50 flex items-center justify-center overflow-hidden border-4 border-gray-200 shadow-2xl">
               {/* video or user image */}
               {cameraOn ? (
                 <video ref={videoRef} className="w-full h-full object-cover object-center" muted playsInline autoPlay />
@@ -611,39 +614,39 @@ export default function InterviewLive() {
             </div>
 
               {/* bottom label - user name from /me */}
-            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-linear-to-r from-gray-900 to-gray-800 px-4 py-2 rounded-full flex items-center gap-2 border border-gray-700 shadow-lg max-w-64">
+            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-linear-to-r from-gray-900 to-gray-800 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2 border border-gray-700 shadow-lg max-w-64">
               <User className="h-4 w-4 text-white shrink-0" />
               <span className="text-sm font-semibold text-white truncate" title={userName}>{userName}</span>
             </div>
           </div>
 
           {/* controls under your circle */}
-          <div className="flex items-center gap-4 mt-6">
+          <div className="flex items-center gap-3 sm:gap-4 mt-4 md:mt-6">
             <button
               onClick={toggleMute}
-              className="rounded-full w-16 h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
+              className="rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
               disabled={ending}
               title={isMuted ? "Unmute / Start speaking (Ctrl+K)" : "Mute / Stop speaking (Ctrl+K)"}
             >
-              {isMuted ? <MicOff className="h-7 w-7 text-gray-600" /> : <Mic className="h-7 w-7 text-[#DFFF00]" />}
+              {isMuted ? <MicOff className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-gray-600" /> : <Mic className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-[#DFFF00]" />}
             </button>
 
             <button
               onClick={toggleCamera}
-              className="rounded-full w-16 h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
+              className="rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center bg-white shadow-lg hover:shadow-xl border-2 border-gray-200 hover:border-[#DFFF00] transition-all duration-300"
               disabled={ending}
               title={cameraOn ? "Turn camera off" : "Turn camera on"}
             >
-              {cameraOn ? <Video className="h-7 w-7 text-gray-600" /> : <CameraOff className="h-7 w-7 text-gray-600" />}
+              {cameraOn ? <Video className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-gray-600" /> : <CameraOff className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-gray-600" />}
             </button>
 
             <button
               onClick={endCall}
-              className="rounded-full w-16 h-16 flex items-center justify-center bg-linear-to-br from-red-500 to-red-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center bg-linear-to-br from-red-500 to-red-600 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
               disabled={ending}
               title="End call"
             >
-              <Phone className="h-7 w-7 text-white rotate-135" />
+              <Phone className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-white rotate-135" />
             </button>
           </div>
 
@@ -659,9 +662,9 @@ export default function InterviewLive() {
         </div>
 
         {/* AI CIRCLE */}
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-4 md:gap-6 w-full md:w-auto">
           <div className="relative">
-            <div className="w-72 h-72 rounded-full bg-linear-to-br from-gray-200 via-gray-100 to-white flex items-center justify-center overflow-hidden border-4 border-gray-300 shadow-2xl">
+            <div className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 rounded-full bg-linear-to-br from-gray-200 via-gray-100 to-white flex items-center justify-center overflow-hidden border-4 border-gray-300 shadow-2xl">
               {/* AI avatar image (from selected model or fallback) - fill full circle */}
               <img src={aiImageUrl || AI_IMAGE} alt={aiName || "AI Interviewer"} className="w-full h-full object-cover object-center" />
 
@@ -675,7 +678,7 @@ export default function InterviewLive() {
             </div>
 
             {/* AI label with speaking indicator or model name */}
-            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-linear-to-r from-blue-600 to-blue-500 px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+            <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-linear-to-r from-blue-600 to-blue-500 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full flex items-center gap-2 shadow-lg">
               {aiSpeaking ? (
                 <>
                   <Bot className="h-4 w-4 text-white" />
@@ -692,7 +695,7 @@ export default function InterviewLive() {
 
           {/* transient ai transcript - floating with linear blur - positioned below the circle */}
           {aiTranscript && (
-            <div className="w-80 backdrop-blur-xl bg-linear-to-br from-blue-500/20 via-blue-400/10 to-transparent rounded-2xl p-4 border border-blue-400/30 shadow-2xl animate-float mt-4">
+            <div className="w-full max-w-[20rem] sm:max-w-xs backdrop-blur-xl bg-linear-to-br from-blue-500/20 via-blue-400/10 to-transparent rounded-2xl p-3 sm:p-4 border border-blue-400/30 shadow-2xl animate-float mt-4">
               <div className="flex items-start gap-2">
                 <Bot className="h-4 w-4 text-gray-700 mt-1 shrink-0" />
                 <p className="text-sm text-gray-800 font-medium leading-relaxed">{aiTranscript}</p>

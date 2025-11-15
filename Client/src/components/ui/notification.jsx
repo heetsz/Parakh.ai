@@ -45,8 +45,8 @@ export const NotificationProvider = ({ children }) => {
   }, [])
 
   // Push to inbox and optionally toast
-  const push = useCallback(({ type = 'info', title = '', message = '', toast = true }) => {
-    const item = { id: Math.random().toString(36).slice(2), type, title, message, createdAt: Date.now(), read: false }
+  const push = useCallback(({ type = 'info', title = '', message = '', action, toast = true }) => {
+    const item = { id: Math.random().toString(36).slice(2), type, title, message, action: action || null, createdAt: Date.now(), read: false }
     persist([item, ...inbox])
     if (toast) notify({ type, title, message })
   }, [inbox, notify, persist])
