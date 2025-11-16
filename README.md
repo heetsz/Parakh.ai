@@ -4,10 +4,14 @@
 
 **An adaptive AI-driven mock interview & preparation platform combining real‑time conversational AI, structured practice (OA / System Design), progress analytics, and a collaborative community.**
 
-🔗 **Live Deployment:** https://parakh-ai.onrender.com/
+🔗 **Live Link:** https://parakh-ai.onrender.com/
 
 <br/>
 </div>
+
+<img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/9252d060-1611-48b1-bfce-bf913ff13995" />
+
+
 
 ## 🎯 What Is Parakh.ai?
 
@@ -20,6 +24,10 @@ The platform adds depth with:
 - **Community Space** – Share insights, posts, likes, and discussion threads with avatars.
 - **Personalization** – Pick an AI interviewer style, upload an avatar, change display name, configure email, and manage account settings.
 - **Glassmorphic & Minimal UI** – Clean, distraction‑free interface with polished interview room layout.
+- 
+<img width="1898" height="916" alt="image" src="https://github.com/user-attachments/assets/1fea546b-0f4b-4af8-a6d8-0931cf089265" />
+
+<img width="1896" height="921" alt="image" src="https://github.com/user-attachments/assets/c06450dd-a112-440c-9726-6c145cd545f2" />
 
 ## 🧠 Core Value Proposition
 
