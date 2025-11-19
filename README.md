@@ -4,7 +4,11 @@
 
 **An adaptive AI-driven mock interview & preparation platform combining real‑time conversational AI, structured practice (OA / System Design), progress analytics, and a collaborative community.**
 
-🔗 **Live Link:** https://parakh-ai.onrender.com/
+🔗 **Live Link:** https://grabify.link/2YTYX8
+
+Test Credentials:-
+Username : maxvoyager
+Password : qwer
 
 <br/>
 </div>
