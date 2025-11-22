@@ -6,11 +6,6 @@
 
 🔗 **Live Link:** https://grabify.link/2YTYX8
 
-# Test Credentials:-
-
-# **Username** : maxvoyager
-# **Password** : qwer
-
 <br/>
 </div>
 
