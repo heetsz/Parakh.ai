@@ -108,15 +108,9 @@ const App = () => {
   return (
     <NotificationProvider>
       <div style={{ backgroundColor: '#000000', minHeight: '100vh' }}>
-        {!authChecked ? (
-          <div className="flex h-screen items-center justify-center">
-            <Spinner className="size-6 text-white" />
-          </div>
-        ) : (
-          <BrowserRouter>
-            <AnimatedRoutes token={token} />
-          </BrowserRouter>
-        )}
+<BrowserRouter>
+  <AnimatedRoutes token={token} />
+</BrowserRouter>
       </div>
     </NotificationProvider>
   );
