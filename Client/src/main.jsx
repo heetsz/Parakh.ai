@@ -11,7 +11,7 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker
             .register('/sw.js')
             .then(reg => {
-                console.log('SW registered:', reg.scope);
+                // console.log('SW registered:', reg.scope);
                 // Optionally check for updates periodically
                 setInterval(() => {
                     reg.update().catch(() => {});
