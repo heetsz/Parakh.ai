@@ -24,7 +24,7 @@ The platform adds depth with:
 - **Community Space** – Share insights, posts, likes, and discussion threads with avatars.
 - **Personalization** – Pick an AI interviewer style, upload an avatar, change display name, configure email, and manage account settings.
 - **Glassmorphic & Minimal UI** – Clean, distraction‑free interface with polished interview room layout.
-- 
+
 <img width="1898" height="916" alt="image" src="https://github.com/user-attachments/assets/1fea546b-0f4b-4af8-a6d8-0931cf089265" />
 
 <img width="1896" height="921" alt="image" src="https://github.com/user-attachments/assets/c06450dd-a112-440c-9726-6c145cd545f2" />
